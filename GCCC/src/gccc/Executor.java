@@ -35,9 +35,11 @@ public class Executor {
 		try {
 			String fileName=attempt.getFile().getName();
 			if (fileName.endsWith(".java"))
-				result.setOutput(runJava(attempt.getFile()));
-			if (fileName.endsWith(".exe"))
-				result.setOutput(runExe(attempt.getFile()));
+				result.setOutput(runJava(attempt.getFile(), attempt.getTask().getMaxTimems()));
+			else if (fileName.endsWith(".exe"))
+				result.setOutput(runExe(attempt.getFile(), attempt.getTask().getMaxTimems()));
+			else if (fileName.endsWith(".class"))
+				result.setOutput(runClass(attempt.getFile(), attempt.getTask().getMaxTimems()));
 			else
 				throw new Exception("Unknown file type: "+fileName);
 			result.setSuccess(true);
@@ -47,14 +49,20 @@ public class Executor {
 		}
 		catch (Throwable error) {
 			result.setSuccess(false);
+			for (Throwable e=error; e!=null; e=e.getCause()) {
+				if (e instanceof ExecutionException) {
+					result.setOutput(((ExecutionException)e).getOutput());
+					break;
+				}
+			}
 		}
 		result.setDurationms(System.currentTimeMillis()-start);
 		attempt.setResult(result);
 	}
 
-	private String runJava(File file) throws Exception {
+	private String runJava(File file, long timeoutms) throws Exception {
 		try {
-			run("javac -sourcepath "+file.getParent()+" "+file.getAbsolutePath());
+			run(new String[] { "javac.exe", file.getName() }, file.getParentFile(), 100000);
 		}
 		catch (InterruptedException error) {
 			throw error;
@@ -62,11 +70,19 @@ public class Executor {
 		catch (Throwable error) {
 			throw new Exception("Could not compile "+file.getAbsolutePath(), error);
 		}
+		String path=file.getAbsolutePath();
+		int n=path.lastIndexOf('.');
+		String classFile=path.substring(0, n)+".class";
+		return runClass(new File(classFile), timeoutms);
+	}
+
+	private String runClass(File file, long timeoutms) throws Exception {
 		try {
-			String path=file.getAbsolutePath();
-			int n=path.lastIndexOf('.');
-			String classFile=path.substring(0, n)+".class";
-			return run("java "+classFile);
+			String name = file.getName();
+			int n=name.lastIndexOf(".");
+			if (n>=0)
+				name=name.substring(0, n);
+			return run(new String[] { "java.exe", name }, file.getParentFile(), timeoutms);
 		}
 		catch (InterruptedException error) {
 			throw error;
@@ -76,9 +92,9 @@ public class Executor {
 		}
 	}
 
-	private String runExe(File file) throws Exception {
+	private String runExe(File file, long timeoutms) throws Exception {
 		try {
-			return run(file.getAbsolutePath());
+			return run(new String[] { file.getName() }, file.getParentFile(), timeoutms);
 		}
 		catch (InterruptedException error) {
 			throw error;
@@ -88,6 +104,7 @@ public class Executor {
 		}
 	}
 
+	@SuppressWarnings("serial")
 	private class ExecutionException extends Exception {
 
 		public ExecutionException(String command, int exitCode, String output) {
@@ -109,9 +126,8 @@ public class Executor {
 		private final String output;
 	}
 	
-	private String run(String command) throws Exception {
-		Process process = Runtime.getRuntime().exec(command);
-		int exitCode = process.waitFor();
+	private String run(String[] command, File dir, long timeoutms) throws Exception {
+		Process process = Runtime.getRuntime().exec(command, null, dir);
 		BufferedReader reader =	new BufferedReader(new InputStreamReader(process.getInputStream()));
 		StringBuilder output=new StringBuilder();
 		while (true) {
@@ -120,8 +136,9 @@ public class Executor {
 				break;
 			output.append(line).append("\n");
 		}
+		int exitCode = process.waitFor();
 		if (exitCode!=0)
-			throw new ExecutionException(command, exitCode, output.toString());
+			throw new ExecutionException(command[0], exitCode, output.toString());
 		return output.toString();
 	}
 	
