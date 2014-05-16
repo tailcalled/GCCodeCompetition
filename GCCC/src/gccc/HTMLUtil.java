@@ -49,6 +49,9 @@ public class HTMLUtil {
 	public static KVPair[] attrs(KVPair... a) {
 		return a;
 	}
+	public static KVPair $(String key, String value) {
+		return new KVPair(key, value);
+	}
 	public static HTML page(HTML... body) {
 		return tag("html", tag("body", body));
 	}
