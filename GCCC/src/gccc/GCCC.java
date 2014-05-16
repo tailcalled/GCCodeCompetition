@@ -11,15 +11,18 @@ public class GCCC {
 
 	private final Competition competition;
 
-	public final Handlers handlers = new Handlers();
+	public final Handlers handlers;
 	/** Container namespace for HTTPHandlers */
 	public class Handlers {
-		public final HttpHandler home = new Home();
-		private Handlers() {}
+		public final HttpHandler home;
+		private Handlers(Competition competition) {
+			home = new Home(competition);
+		}
 	}
 
 	public GCCC() {
 		competition = new Competition();
+		handlers = new Handlers(competition);
 	}
 
 	public static void main(String[] args) throws Throwable {
