@@ -1,5 +1,6 @@
 package gccc;
 
+import java.io.*;
 import java.net.*;
 import com.sun.net.httpserver.*;
 import gccc.handlers.*;
@@ -9,19 +10,24 @@ import gccc.handlers.*;
  */
 public class GCCC {
 
+	private static final File SUBMISSIONS = new File("submissions/");
+
 	private final Competition competition;
 
 	public final Handlers handlers;
 	/** Container namespace for HTTPHandlers */
 	public class Handlers {
 		public final HttpHandler home;
+		public final HttpHandler submission;
 		private Handlers(Competition competition) {
 			home = new Home(competition);
+			submission = new Submission(competition, SUBMISSIONS);
 		}
 	}
 
 	public GCCC() {
 		competition = new Competition();
+		competition.addTask(new Task("hworld", "Hello, World!"));
 		handlers = new Handlers(competition);
 	}
 
@@ -29,6 +35,8 @@ public class GCCC {
 		GCCC gccc = new GCCC();
 		HttpServer server = HttpServer.create(new InetSocketAddress(8080), 16);
 		server.createContext("/", gccc.handlers.home);
+		server.createContext("/submission", gccc.handlers.submission);
+		server.createContext("/submit", gccc.handlers.submission);
 		server.setExecutor(null);
 		server.start();
 	}

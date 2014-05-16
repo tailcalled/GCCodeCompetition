@@ -2,9 +2,19 @@ package gccc;
 
 public class Task {
 
-	public Task(String name) {
+	private final String name;
+	private final String displayName;
+
+	public Task(String name, String displayName) {
 		this.name = name;
+		this.displayName = displayName;
 	}
 
-	private String name;
+	public String getName() {
+		return name;
+	}
+	public String getDisplayName() {
+		return displayName;
+	}
+
 }
