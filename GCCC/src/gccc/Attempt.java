@@ -27,9 +27,21 @@ public class Attempt {
 		return task;
 	}
 
+	/**
+	 * @return Is be null if the Attempt has not yet been executed 
+	 */
+	public AttemptResult getResult() {
+		return result;
+	}
+
+	public void setResult(AttemptResult result) {
+		this.result = result;
+	}
+
 	private final User user;
 	private final File file;
 	private final Date created=new Date();
 	private final Task task;
+	private AttemptResult result=null;
 
 }
