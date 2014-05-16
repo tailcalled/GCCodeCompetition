@@ -36,12 +36,24 @@ public class Attempt {
 
 	public void setResult(AttemptResult result) {
 		this.result = result;
+		setState(result.isSuccess() ? State.Completed : State.Failed);
 	}
 
+	public State getState() {
+		return state;
+	}
+
+	public void setState(State state) {
+		this.state = state;
+	}
+
+	public enum State { Waiting, Executing, Failed, Completed }
+	
 	private final User user;
 	private final File file;
 	private final Date created=new Date();
 	private final Task task;
+	private State state=State.Waiting;
 	private AttemptResult result=null;
 
 }

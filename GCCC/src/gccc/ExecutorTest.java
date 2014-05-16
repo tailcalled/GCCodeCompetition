@@ -21,8 +21,8 @@ public class ExecutorTest {
 				}
 			};
 			Task task=new Task("Hugo", 10000, Arrays.asList(hugoTest));
-			Attempt attempt = new Attempt(user, new File("C:/Users/Niels/git/GCCodeCompetition/jhugo/src/Main.java"), task);
-			//Attempt attempt = new Attempt(user, new File("C:/Users/Niels/git/GCCodeCompetition/jhugo/src/Main.class"), task);
+			//Attempt attempt = new Attempt(user, new File("C:/Users/Niels/git/GCCodeCompetition/jhugo/src/Main.java"), task);
+			Attempt attempt = new Attempt(user, new File("C:/Users/Niels/git/GCCodeCompetition/jhugo/src/Main.class"), task);
 			executor.runAttempt(attempt);
 			AttemptResult result = attempt.getResult();
 			System.out.println("Attempt success: "+result.isSuccess()+" duration="+result.getDurationms()+" output: "+result.getOutput());
