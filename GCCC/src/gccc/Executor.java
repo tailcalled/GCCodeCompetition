@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
-public class Executor {
+public class Executor implements AutoCloseable {
 
 	public Executor(AttemptQueue queue) {
 		this.queue = queue;
@@ -19,6 +19,11 @@ public class Executor {
 		if (!new File(javaPath+"javac.exe").exists())
 			javaPath="";
 		thread.start();
+	}
+
+	@Override
+	public void close() throws Exception {
+		thread.interrupt();
 	}
 
 	private Thread thread=new Thread() {
