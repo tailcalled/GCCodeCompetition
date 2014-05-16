@@ -40,7 +40,7 @@ public class AttemptResult {
 
 	private final Attempt attempt;
 	private boolean success;
-	private long durationms;
+	private long durationms=0;
 	private String output="";
 	private String errorMessage="";
 }

@@ -52,7 +52,7 @@ public class Executor implements AutoCloseable {
 	}
 	
 	public void runAttempt(Attempt attempt) {
-		long start=System.currentTimeMillis();
+		long start=0;
 		AttemptResult result = new AttemptResult(attempt);
 		try {
 			File file=attempt.getFile();
@@ -83,6 +83,7 @@ public class Executor implements AutoCloseable {
 			}
 			else
 				throw new Exception("Unknown file type: "+fileName);
+			start=System.currentTimeMillis();
 			int tn=1;
 			for (Test test: attempt.getTask().getTests()) {
 				System.out.println("Test "+tn+" of "+fileName+" starts");
@@ -117,9 +118,11 @@ public class Executor implements AutoCloseable {
 				}
 			}
 		}
-		long duration=System.currentTimeMillis()-start;
-		System.out.println("Testing completed. Duration was "+duration+" ms");
-		result.setDurationms(duration);
+		if (start!=0) {
+			long duration=System.currentTimeMillis()-start;
+			System.out.println("Testing completed. Duration was "+duration+" ms");
+			result.setDurationms(duration);
+		}
 		attempt.setResult(result);
 	}
 
