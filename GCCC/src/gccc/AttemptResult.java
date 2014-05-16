@@ -30,8 +30,17 @@ public class AttemptResult {
 		this.output = output;
 	}
 
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
+
 	private final Attempt attempt;
 	private boolean success;
 	private long durationms;
 	private String output="";
+	private String errorMessage="";
 }
