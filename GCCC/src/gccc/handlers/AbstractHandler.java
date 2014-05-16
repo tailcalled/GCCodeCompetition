@@ -9,7 +9,7 @@ import static gccc.HTMLUtil.*;
 
 public abstract class AbstractHandler implements HttpHandler {
 
-	private Competition competition;
+	protected final Competition competition;
 
 	public AbstractHandler(Competition competition) {
 		this.competition = competition;
@@ -47,38 +47,60 @@ public abstract class AbstractHandler implements HttpHandler {
 			}
 			else if (contentType.startsWith("multipart/form-data")) {
 				Pattern regex = Pattern.compile("([A-Za-z\\-]+): (.+)");
-				Pattern boundaryRegex = Pattern.compile("multipart/form-data boundary=(.+)");
-				Pattern dispositionRegex = Pattern.compile("form-data; name=\"(.)+\"(?:; filename=\"(.)+\")?");
+				Pattern boundaryRegex = Pattern.compile("multipart/form-data(?:; boundary=(.+))?");
+				Pattern dispositionRegex = Pattern.compile("form-data; name=\"([^\"]+)\"(?:; filename=\"([^\"]+)\")?");
 				Matcher m = boundaryRegex.matcher(contentType); m.matches();
-				String boundary = m.group(1);
+				String boundary = "--" + m.group(1).trim();
+				line = br.readLine();
+				assert line.trim().startsWith(boundary);
 				while ((line = br.readLine()) != null) {
 					// state 1: reading header thingies
 					String name = null;
+					String filename = null;
 					m = regex.matcher(line);
 					while (!line.trim().equals("")) {
-						while (m.matches()) {
-							if (m.group(1) == "Content-Type") {
-								m = boundaryRegex.matcher(contentType); m.matches();
-								boundary = m.group(1);
+						if (m.matches()) {
+							while (m.matches()) {
+								if (m.group(1).equals("Content-Type")) {
+									m = boundaryRegex.matcher(m.group(2));
+									if (m.matches()) {
+										boundary = "--" + m.group(1).trim();
+									}
+								}
+								else if (m.group(1).equals("Content-Disposition")) {
+									m = dispositionRegex.matcher(m.group(2)); m.matches();
+									name = m.group(1);
+									filename = m.group(2);
+								}
+								else {
+									System.out.println("Warning: invalid header: " + m.group(1));
+								}
+								m = regex.matcher(line = br.readLine());
 							}
-							else if (m.group(1) == "Content-Disposition") {
-								m = dispositionRegex.matcher(contentType); m.matches();
-								name = m.group(1);
-							}
+						}
+						else {
+							System.out.println("Warning: invalid line: " + line);
 							m = regex.matcher(line = br.readLine());
 						}
 					}
 					// state 2: reading input
 					if (name != null) {
 						String input = null;
-						while (!(line = br.readLine()).trim().equals("--" + boundary)) {
+						while ((line = br.readLine()) != null) {
+							if (line.trim().startsWith(boundary)) {
+								break;
+							}
 							if (input == null) input = "";
 							else input += "\n";
 							input += line;
 						}
 						params.put(name, input == null? "" : input);
+						if (filename != null) {
+							params.put(name + "__filename", filename);
+						}
 					}
 				}
+				System.out.println(params.keySet());
 			}
 			br.close();
 		}
@@ -118,13 +140,13 @@ public abstract class AbstractHandler implements HttpHandler {
 			respond(code, sess, result);
 		}
 		catch (Throwable t1) {
+			t1.printStackTrace();
 			try {
 				respond(500, sess, page(
 					tag("p",
 						escape("Internal server error: " + t1.getMessage())
 					)
 				));
-				t1.printStackTrace();
 			}
 			catch (Throwable t2) {
 				t2.printStackTrace();

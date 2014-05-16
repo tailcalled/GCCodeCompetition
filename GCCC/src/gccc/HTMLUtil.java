@@ -2,6 +2,7 @@ package gccc;
 
 import com.sun.net.httpserver.*;
 import java.io.*;
+import java.util.*;
 
 public class HTMLUtil {
 
@@ -36,6 +37,12 @@ public class HTMLUtil {
 		return tag(tagName, attrs(), elements);
 	}
 	public static HTML tag(String tagName, KVPair[] attrs, HTML... elements) {
+		return tag(tagName, attrs, Arrays.asList(elements));
+	}
+	public static HTML tag(String tagName, Iterable<HTML> elements) {
+		return tag(tagName, attrs(), elements);
+	}
+	public static HTML tag(String tagName, KVPair[] attrs, Iterable<HTML> elements) {
 		String attrText = "";
 		for (KVPair p: attrs) {
 			attrText += " " + p;

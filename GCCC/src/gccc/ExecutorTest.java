@@ -20,7 +20,7 @@ public class ExecutorTest {
 					checkInts(output, new int[] { 4 });
 				}
 			};
-			Task task=new Task("Hugo", 1000, Arrays.asList(hugoTest));
+			Task task=new Task("Hugo", "Hugo", 1000, Arrays.asList(hugoTest));
 			//Attempt attempt = new Attempt(user, new File("C:/Users/Niels/git/GCCodeCompetition/jhugo/src/Main.java"), task);
 			Attempt attempt = new Attempt(user, new File("C:/Users/Niels/git/GCCodeCompetition/jhugo/src/Main.class"), task);
 			executor.runAttempt(attempt);
