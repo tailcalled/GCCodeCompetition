@@ -110,8 +110,9 @@ public class Executor implements AutoCloseable {
 			result.setSuccess(false);
 			for (Throwable e=error; e!=null; e=e.getCause()) {
 				if (e instanceof ExecutionException) {
-					result.setErrorMessage("Cannot run");
-					result.setOutput(((ExecutionException)e).getOutput());
+					ExecutionException ee=(ExecutionException)e;
+					result.setErrorMessage(ee.getMessage());
+					result.setOutput(ee.getOutput());
 				}
 				else if (e instanceof TestException || e instanceof CompilationError) {
 					result.setErrorMessage(e.getMessage());
@@ -129,14 +130,19 @@ public class Executor implements AutoCloseable {
 	@SuppressWarnings("serial")
 	private class ExecutionException extends Exception {
 
-		public ExecutionException(String command, int exitCode, String output) {
+		public ExecutionException(String command, int exitCode, boolean timeout, String output) {
 			this.command = command;
 			this.exitCode = exitCode;
+			this.timeout = timeout;
 			this.output = output;
 		}
 
+		public String getMessage() {
+			return toString();
+		}
+		
 		public String toString() {
-			return "Process terminated with error code "+exitCode+" Output was:\n"+output;			
+			return "Process terminated "+(timeout ? "due to timeout" : "with error code "+exitCode)+" Output was:\n"+output;			
 		}
 		
 		public String getOutput() {
@@ -146,15 +152,29 @@ public class Executor implements AutoCloseable {
 		private final String command;
 		private final int exitCode;
 		private final String output;
+		private boolean timeout;
 	}
 	
-	private String run(String[] command, File dir, String input, long timeoutms) throws Exception {
+	private String run(String[] command, File dir, String input, final long timeoutms) throws Exception {
 		String commandLine=new File(command[0]).getName();
 		for (int i=1; i<command.length; i++)
 			commandLine+=" "+command[i];
 		System.out.println("Running "+commandLine);
-		Process process = Runtime.getRuntime().exec(command, null, dir);
+		final Process process = Runtime.getRuntime().exec(command, null, dir);
 		try {
+			final boolean[] isTimeout=new boolean[1];
+			Thread timeoutThread=new Thread() {
+				public void run() {
+					try {
+						Thread.sleep(timeoutms);
+						isTimeout[0]=true;
+						process.destroy();
+					} 
+					catch (InterruptedException e) {
+					}
+				}
+			};
+			timeoutThread.start();
 			if (!input.isEmpty()) {
 				try (Writer w=new OutputStreamWriter(process.getOutputStream());
 					 Writer bw=new BufferedWriter(w)) {
@@ -163,9 +183,10 @@ public class Executor implements AutoCloseable {
 			}
 			String output=readInputStream(process.getInputStream())+readInputStream(process.getErrorStream());
 			int exitCode = process.waitFor();
+			timeoutThread.interrupt();
 			System.out.println(commandLine+" completed with exit code "+exitCode);
 			if (exitCode!=0)
-				throw new ExecutionException(command[0], exitCode, output);
+				throw new ExecutionException(command[0], exitCode, isTimeout[0], output);
 			return output;
 		}
 		finally {
