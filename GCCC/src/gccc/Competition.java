@@ -17,8 +17,9 @@ public class Competition {
 	private final Executor executor;
 
 	public Competition() {
+		ThreadPool threadPool = new ThreadPool();
 		users = new HashMap<InetAddress, User>();
-		executor = new Executor(queue);
+		executor = new Executor(queue, threadPool);
 	}
 
 	public Collection<Task> getTasks() {

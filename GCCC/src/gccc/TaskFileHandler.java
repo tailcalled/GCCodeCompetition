@@ -25,7 +25,7 @@ public class TaskFileHandler {
 		try {
 			File infoFile=new File(folder, "task.inf");
 			if (!infoFile.exists()) {
-				System.out.println("Cannot find task.inf");
+				System.out.println("Cannot find task.inf in "+folder.getAbsolutePath());
 				return null;
 			}
 			Properties properties = new Properties();
@@ -33,7 +33,7 @@ public class TaskFileHandler {
 				properties.load(input);
 				String name=properties.getProperty("name", "");
 				if (name.isEmpty()) {
-					System.out.println("Cannot find name entry in taskinfo.inf");
+					System.out.println("Cannot find name entry in "+folder.getAbsolutePath()+"/task.inf");
 					return null;
 				}
 				String displayName=properties.getProperty("displayname", name);

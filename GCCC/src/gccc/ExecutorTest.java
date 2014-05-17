@@ -8,7 +8,8 @@ public class ExecutorTest {
 	
 	public static void main(String[] args) throws Exception {
 		AttemptQueue queue = new AttemptQueue();
-		try (Executor executor = new Executor(queue)) {
+		try (ThreadPool threadPool = new ThreadPool();
+			 Executor executor = new Executor(queue, threadPool)) {
 			User user = new User(InetAddress.getLocalHost());
 			List<Task> tasks = TaskFileHandler.getTasks(new File("submissions"));
 			//Attempt attempt = new Attempt(user, new File("C:/Users/Niels/git/GCCodeCompetition/jhugo/src/Main.java"), tasks.get(0), 0);

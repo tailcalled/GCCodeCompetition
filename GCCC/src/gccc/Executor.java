@@ -1,6 +1,7 @@
 package gccc;
 
 import gccc.Test.TestException;
+import gccc.ThreadPool.Task;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,20 +10,21 @@ import java.io.Writer;
 
 public class Executor implements AutoCloseable {
 
-	public Executor(AttemptQueue queue) {
+	public Executor(AttemptQueue queue, ThreadPool threadPool) {
 		this.queue = queue;
+		this.threadPool = threadPool;
 		javaPath="C:/Program Files/Java/jdk1.8.0_05/bin/";
 		if (!new File(javaPath+"javac").exists())
 			javaPath="";
-		thread.start();
+		task = threadPool.execute(pollTask);
 	}
 
 	@Override
 	public void close() throws Exception {
-		thread.interrupt();
+		task.interrupt();
 	}
 
-	private Thread thread=new Thread() {
+	private Runnable pollTask=new Runnable() {
 		public void run() {
 			while(true) {
 				try {
@@ -162,7 +164,8 @@ public class Executor implements AutoCloseable {
 		final Process process = Runtime.getRuntime().exec(command, null, dir);
 		try {
 			final boolean[] isTimeout=new boolean[1];
-			Thread timeoutThread=new Thread() {
+			Task timeoutTask = threadPool.execute(new Runnable() {
+				@Override
 				public void run() {
 					try {
 						Thread.sleep(timeoutms);
@@ -172,8 +175,7 @@ public class Executor implements AutoCloseable {
 					catch (InterruptedException e) {
 					}
 				}
-			};
-			timeoutThread.start();
+			});
 			if (!input.isEmpty()) {
 				try (Writer w=new OutputStreamWriter(process.getOutputStream());
 					 Writer bw=new BufferedWriter(w)) {
@@ -182,7 +184,7 @@ public class Executor implements AutoCloseable {
 			}
 			String output=Tools.readInputStream(process.getInputStream())+Tools.readInputStream(process.getErrorStream());
 			int exitCode = process.waitFor();
-			timeoutThread.interrupt();
+			timeoutTask.interrupt();
 			System.out.println(commandLine+" completed with exit code "+exitCode);
 			if (exitCode!=0)
 				throw new ExecutionException(command[0], exitCode, isTimeout[0], output);
@@ -195,4 +197,6 @@ public class Executor implements AutoCloseable {
 	
 	private final AttemptQueue queue;
 	public String javaPath="";
+	private ThreadPool threadPool;
+	private final ThreadPool.Task task;
 }
