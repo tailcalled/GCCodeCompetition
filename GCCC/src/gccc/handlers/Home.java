@@ -28,6 +28,11 @@ public class Home extends AbstractHandler {
 				escape("Change name:"), tag("input", attrs($("type", "text"), $("name", "newUsername"))),
 				tag("input", attrs($("type", "submit")))
 			),
+			tag("ll",
+				competition.getTasks().stream().map(t ->
+					tag("li", tag("a", attrs($("href", "/task?problem=" + t.getName())), escape(t.getDisplayName())))
+				).collect(toList())
+			),
 			tag("form", attrs($("action", "/submit"), $("method", "post"), $("enctype", "multipart/form-data")),
 				escape("Submit attempt."), tag("br"),
 				escape("Problem: "), tag("select", attrs($("name", "problem")),
