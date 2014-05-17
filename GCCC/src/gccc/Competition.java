@@ -13,10 +13,12 @@ public class Competition {
 	private final Object usersBottleneck = new Object();
 
 	private final Map<String, Task> tasks = new ConcurrentHashMap<String, Task>();
-	private final List<Attempt> attempts = new CopyOnWriteArrayList<Attempt>();
+	private final AttemptQueue queue = new AttemptQueue();
+	private final Executor executor;
 
 	public Competition() {
 		users = new HashMap<InetAddress, User>();
+		executor = new Executor(queue);
 	}
 
 	public Collection<Task> getTasks() {
@@ -41,9 +43,8 @@ public class Competition {
 		}
 	}
 	public List<Attempt> getAttempts(User user, Task problem) {
-		// could be optimized, but that is not necessary
 		List<Attempt> res = new ArrayList<Attempt>();
-		for (Attempt a: attempts) {
+		for (Attempt a: queue.getAllAttempts()) {
 			if (a.getUser() == user && a.getTask() == problem) {
 				res.add(a);
 			}
@@ -51,7 +52,7 @@ public class Competition {
 		return res;
 	}
 	public void submitAttempt(Attempt attempt) {
-		attempts.add(attempt);
+		queue.add(attempt);
 	}
 
 }

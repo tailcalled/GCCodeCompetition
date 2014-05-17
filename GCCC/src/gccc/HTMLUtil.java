@@ -3,18 +3,22 @@ package gccc;
 import com.sun.net.httpserver.*;
 import java.io.*;
 import java.util.*;
+import java.util.function.*;
 
 public class HTMLUtil {
 
 	private HTMLUtil() {}
 
-	public static class HTML {
+	public static class HTML implements Iterable<HTML> {
 		private final String toString;
 		public HTML(String toString) {
 			this.toString = toString;
 		}
 		public String toString() {
 			return toString;
+		}
+		public Iterator<HTML> iterator() {
+			return Collections.singletonList(this).iterator();
 		}
 	}
 
@@ -33,23 +37,21 @@ public class HTMLUtil {
 		// TODO
 		return new HTML(text);
 	}
-	public static HTML tag(String tagName, HTML... elements) {
+	@SafeVarargs
+	public static HTML tag(String tagName, Iterable<HTML>... elements) {
 		return tag(tagName, attrs(), elements);
 	}
-	public static HTML tag(String tagName, KVPair[] attrs, HTML... elements) {
-		return tag(tagName, attrs, Arrays.asList(elements));
-	}
-	public static HTML tag(String tagName, Iterable<HTML> elements) {
-		return tag(tagName, attrs(), elements);
-	}
-	public static HTML tag(String tagName, KVPair[] attrs, Iterable<HTML> elements) {
+	@SafeVarargs
+	public static HTML tag(String tagName, KVPair[] attrs, Iterable<HTML>... elements) {
 		String attrText = "";
 		for (KVPair p: attrs) {
 			attrText += " " + p;
 		}
 		String elText = "";
-		for (HTML h: elements) {
-			elText += h;
+		for (Iterable<HTML> hs: elements) {
+			for (HTML h: hs) {
+				elText += h;
+			}
 		}
 		return new HTML("<" + tagName + attrText + ">" + elText + "</" + tagName + ">");
 	}
@@ -58,6 +60,9 @@ public class HTMLUtil {
 	}
 	public static KVPair $(String key, String value) {
 		return new KVPair(key, value);
+	}
+	public static HTML code(Supplier<HTML> prod) {
+		return prod.get();
 	}
 	public static HTML page(HTML... body) {
 		return tag("html", tag("body", body));

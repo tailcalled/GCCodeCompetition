@@ -1,8 +1,10 @@
 package gccc.handlers;
 
 import java.util.*;
+import java.util.function.*;
 import gccc.*;
 import static gccc.HTMLUtil.*;
+import static java.util.stream.Collectors.*;
 
 public class Home extends AbstractHandler {
 
@@ -18,10 +20,6 @@ public class Home extends AbstractHandler {
 		return get(sess);
 	}
 	public HTML get(Session sess) {
-		List<HTML> taskOpts = new ArrayList<HTML>();
-		for (Task t: competition.getTasks()) {
-			taskOpts.add(tag("option", attrs($("value", t.getName())), escape(t.getDisplayName())));
-		}
 		return page(
 			tag("p",
 				escape("Hello, " + sess.getUser().getName() + "! Welcome to the competition.")
@@ -32,7 +30,11 @@ public class Home extends AbstractHandler {
 			),
 			tag("form", attrs($("action", "/submit"), $("method", "post"), $("enctype", "multipart/form-data")),
 				escape("Submit attempt."), tag("br"),
-				escape("Problem: "), tag("select", attrs($("name", "problem")), taskOpts), tag("br"),
+				escape("Problem: "), tag("select", attrs($("name", "problem")),
+					competition.getTasks().stream().map(t ->
+						tag("option", attrs($("value", t.getName())), escape(t.getDisplayName()))
+					).collect(toList())
+				), tag("br"),
 				escape("Language: "), escape("Only Java for now."), tag("br"),
 				escape("File: "), tag("input", attrs($("name", "upload"), $("type", "file"))), tag("br"),
 				tag("input", attrs($("type", "submit")))

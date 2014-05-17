@@ -16,7 +16,7 @@ public class Executor implements AutoCloseable {
 	public Executor(AttemptQueue queue) {
 		this.queue = queue;
 		javaPath="C:/Program Files/Java/jdk1.8.0_05/bin/";
-		if (!new File(javaPath+"javac.exe").exists())
+		if (!new File(javaPath+"javac").exists())
 			javaPath="";
 		thread.start();
 	}
@@ -58,7 +58,7 @@ public class Executor implements AutoCloseable {
 			File file=attempt.getFile();
 			if (file.getName().endsWith(".java")) {
 				try {
-					run(new String[] { javaPath+"javac.exe", file.getName() }, file.getParentFile(), "", 100000);
+					run(new String[] { javaPath+"javac", file.getName() }, file.getParentFile(), "", 100000);
 					System.out.println("Compiling of "+file.getAbsolutePath()+" succeeded");
 				}
 				catch (InterruptedException error) {
@@ -79,7 +79,7 @@ public class Executor implements AutoCloseable {
 			else if (fileName.endsWith(".class")) {
 				int n=fileName.lastIndexOf(".");
 				String name=n>=0 ? fileName.substring(0, n) : fileName;
-				command=new String[] { javaPath+"java.exe", name };
+				command=new String[] { javaPath+"java", name };
 			}
 			else
 				throw new Exception("Unknown file type: "+fileName);

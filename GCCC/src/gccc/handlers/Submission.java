@@ -1,9 +1,11 @@
 package gccc.handlers;
 
 import java.util.*;
+import java.util.function.*;
 import java.io.*;
 import gccc.*;
 import static gccc.HTMLUtil.*;
+import static java.util.stream.Collectors.*;
 
 public class Submission extends AbstractHandler {
 
@@ -27,7 +29,7 @@ public class Submission extends AbstractHandler {
 			try (Writer out = new FileWriter(file)) {
 				out.write(params.get("upload"));
 			}
-			competition.submitAttempt(new Attempt(sess.getUser(), file, problem));
+			competition.submitAttempt(new Attempt(sess.getUser(), file, problem, attempts.size()));
 		}
 		return get(sess);
 	}
@@ -38,53 +40,55 @@ public class Submission extends AbstractHandler {
 		}
 		Task problem = competition.getTask(params.get("problem"));
 		List<Attempt> attempts = competition.getAttempts(sess.getUser(), problem);
-		int nAttempt = attempts.size() - 1;
-		if (params.containsKey("attempt")) {
+		int nAttempt;
+		if (params.containsKey("attempt"))
 			nAttempt = Integer.parseInt(params.get("attempt"));
-		}
-		HTML resultInfo;
-		if (nAttempt >= 0) {
-			Attempt attempt = attempts.get(nAttempt);
-			AttemptResult result = attempt.getResult();
-			if (result == null) {
-				resultInfo = tag("p", escape("Attempt has not been run yet."));
-			}
-			else {
-				resultInfo = tag("p",
-					escape("Attempt has been run."),
-						result.isSuccess()?
-							escape("Your program has completed this task!")
-						 :	escape("Your program has failed this task.")
-				);
-			}
-		}
-		else {
-			resultInfo = tag("p", escape("You have not selected a program."));
-		}
-		List<HTML> parts = new ArrayList<HTML>();
-		for (int i = 0; i < attempts.size(); i++) {
-			AttemptResult result = attempts.get(i).getResult();
-			String status;
-			if (result == null) status = "waiting...";
-			else if (result.isSuccess()) status = "success!";
-			else status = "failure";
-			parts.add(tag("li",
-				tag("a", attrs($("href", "/submission?problem=" + problem.getName() + "&attempt=" + i)), escape("Attempt #" + i + ": " + status))
-			));
-		}
-		if (parts.isEmpty()) {
-			parts.add(tag("li",
-				escape("(You have not submitted anything to this task.)")
-			));
-		}
+		else
+			nAttempt = attempts.size() - 1;
 		return page(
 			tag("h1", escape("Attempts at " + problem.getDisplayName())),
-			resultInfo,
+			code(() -> {
+				HTML resultInfo;
+				if (nAttempt >= 0) {
+					AttemptResult result = attempts.get(nAttempt).getResult();
+					resultInfo = tag("p",
+						result == null?
+							escape("Attempt has not been run yet") :
+						result.isSuccess()?
+							escape("Your program has completed this task!") :
+//						!result.isSuccess()?
+							escape("Your program has failed this task. The error was: " + result.getErrorMessage()));
+				}
+				else {
+					resultInfo = tag("p", escape("You have not selected a program."));
+				}
+				return resultInfo;
+			}),
 			tag("p",
 				escape("Click "), tag("a", attrs($("href", "/")), escape("here")),
 				escape(" to return to the main page. "), escape("All attempts by you:")
 			),
-			tag("ll", parts)
+			code(() -> {
+				HTML attemptsInfo;
+				if (attempts.size() > 0) {
+					attemptsInfo = tag("ll", attempts.stream().map((attempt) -> {
+						AttemptResult result = attempt.getResult();
+						String status;
+						if (result == null) status = "waiting...";
+						else if (result.isSuccess()) status = "success!";
+						else status = "failure";
+						return tag("li",
+							tag("a", attrs($("href", "/submission?problem=" + problem.getName() + "&attempt=" + attempt.getAttemptNum())),
+								escape("Attempt #" + attempt.getAttemptNum() + ": " + status)
+							)
+						);
+					}).collect(toList()));
+				}
+				else {
+					attemptsInfo = tag("p", escape("(You have not submitted anything to this task.)"));
+				}
+				return attemptsInfo;
+			})
 		);
 	}
 

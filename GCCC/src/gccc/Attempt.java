@@ -5,10 +5,11 @@ import java.util.Date;
 
 public class Attempt {
 
-	public Attempt(User user, File file, Task task) {
+	public Attempt(User user, File file, Task task, int attemptNum) {
 		this.user = user;
 		this.file = file;
 		this.task = task;
+		this.attemptNum = attemptNum;
 	}
 
 	public Date getCreated() {
@@ -25,6 +26,10 @@ public class Attempt {
 
 	public Task getTask() {
 		return task;
+	}
+
+	public int getAttemptNum() {
+		return attemptNum;
 	}
 
 	/**
@@ -53,6 +58,7 @@ public class Attempt {
 	private final File file;
 	private final Date created=new Date();
 	private final Task task;
+	private final int attemptNum;
 	private State state=State.Waiting;
 	private AttemptResult result=null;
 
