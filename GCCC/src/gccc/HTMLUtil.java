@@ -34,7 +34,6 @@ public class HTMLUtil {
 	}
 
 	public static HTML escape(String text) {
-		// TODO
 		return new HTML(text);
 	}
 	@SafeVarargs
@@ -61,10 +60,14 @@ public class HTMLUtil {
 	public static KVPair $(String key, String value) {
 		return new KVPair(key, value);
 	}
-	public static HTML code(Supplier<HTML> prod) {
+	public static <A extends Iterable<HTML>> A code(Supplier<A> prod) {
 		return prod.get();
 	}
-	public static HTML page(HTML... body) {
+	public static Iterable<HTML> elements(HTML... elements) {
+		return Arrays.asList(elements);
+	}
+	@SafeVarargs
+	public static HTML page(Iterable<HTML>... body) {
 		return tag("html", tag("body", body));
 	}
 	public static void respond(int code, HttpExchange sess, HTML response) throws Throwable {

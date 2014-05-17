@@ -22,7 +22,7 @@ public class Submission extends HTMLHandler {
 			Task problem = competition.getTask(params.get("problem"));
 			List<Attempt> attempts = competition.getAttempts(sess.getUser(), problem);
 			// WARNING: potential attack vector; filename might contain '../''es
-			File dir = new File(parentDir, problem.getName() + "/" + sess.getUser().getAddress().getHostAddress() + "/attempt" + attempts.size());
+			File dir = new File(parentDir, problem.getName() + "/" + sess.getUser().getAddress().getHostAddress().replace(":", ".") + "/attempt" + attempts.size());
 			dir.mkdirs();
 			File file = new File(dir, params.get("upload__filename"));
 			file.delete();
@@ -48,21 +48,30 @@ public class Submission extends HTMLHandler {
 		return page(
 			tag("h1", escape("Attempts at " + problem.getDisplayName())),
 			code(() -> {
-				HTML resultInfo;
 				if (nAttempt >= 0) {
-					AttemptResult result = attempts.get(nAttempt).getResult();
-					resultInfo = tag("p",
-						result == null?
-							escape("Attempt has not been run yet") :
-						result.isSuccess()?
-							escape("Your program has completed this task!") :
-//						!result.isSuccess()?
-							escape("Your program has failed this task. The error was: " + result.getErrorMessage()));
+					Attempt attempt = attempts.get(nAttempt);
+					AttemptResult result = attempt.getResult();
+					HTML resultInfo;
+					switch (attempt.getState()) {
+						case Waiting:
+						case Executing:
+							return tag("p", escape("Attempt has not been run yet."));
+						case Failed:
+							resultInfo = tag("p", escape("Your program has failed this task. The error was: " + result.getErrorMessage()));
+							break;
+						case Completed:
+							resultInfo = tag("p", escape("Your program has completed this task!"));
+							break;
+						default: throw new RuntimeException("should not happen");
+					}
+					return elements(
+						resultInfo,
+						tag("pre", escape(result.getOutput()))
+					);
 				}
 				else {
-					resultInfo = tag("p", escape("You have not selected a program."));
+					return tag("p", escape("You have not selected a program."));
 				}
-				return resultInfo;
 			}),
 			tag("p",
 				escape("Click "), tag("a", attrs($("href", "/")), escape("here")), escape(" to return to the main page. "),
