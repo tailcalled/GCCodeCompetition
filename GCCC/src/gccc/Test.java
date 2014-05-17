@@ -15,11 +15,11 @@ public abstract class Test {
 		}
 	}
 	
-	protected void checkInts(String output, int[] result) throws Exception {
+	protected void checkLongs(String output, long[] result) throws Exception {
 		try (Scanner scanner = new Scanner(output)) {
 			for (int i=0; i<result.length; i++) {
 				try {
-					int n = scanner.nextInt();
+					long n = scanner.nextLong();
 					if (n!=result[i])
 						throw new TestException("Value #"+(i+1)+" is wrong: Expected: "+result[i]+" found: "+n);
 				}

@@ -3,6 +3,7 @@ package gccc;
 import java.io.File;
 import java.net.InetAddress;
 import java.util.Arrays;
+import java.util.List;
 
 public class ExecutorTest {
 	
@@ -10,19 +11,20 @@ public class ExecutorTest {
 		AttemptQueue queue = new AttemptQueue();
 		try (Executor executor = new Executor(queue)) {
 			User user = new User(InetAddress.getLocalHost());
-			Test hugoTest=new Test() {
+			/*Test hugoTest=new Test() {
 				@Override
 				public String getInput() {
 					return "5\n2 2 6\n2 1 5\n1 4\n1 3\n1 2\n";
 				}
 				@Override
 				public void verifyOutput(String output) throws Exception {
-					checkInts(output, new int[] { 4 });
+					checkLongs(output, new long[] { 4 });
 				}
 			};
-			Task task=new Task("Hugo", "Hugo", 1000, Arrays.asList(hugoTest));
-			//Attempt attempt = new Attempt(user, new File("C:/Users/Niels/git/GCCodeCompetition/jhugo/src/Main.java"), task);
-			Attempt attempt = new Attempt(user, new File("C:/Users/Niels/git/GCCodeCompetition/jhugo/src/Main.class"), task);
+			Task task=new Task("Hugo", "Hugo", 1000, Arrays.asList(hugoTest));*/
+			List<Task> tasks = TaskFileHandler.getTasks(new File("submissions"));
+			//Attempt attempt = new Attempt(user, new File("C:/Users/Niels/git/GCCodeCompetition/jhugo/src/Main.java"), tasks.get(0), 0);
+			Attempt attempt = new Attempt(user, new File("C:/Users/Niels/git/GCCodeCompetition/jhugo/src/Main.class"), tasks.get(0), 0);
 			executor.runAttempt(attempt);
 			AttemptResult result = attempt.getResult();
 			if (result.isSuccess())

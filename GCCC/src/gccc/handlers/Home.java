@@ -1,10 +1,15 @@
 package gccc.handlers;
 
-import java.util.*;
-import java.util.function.*;
-import gccc.*;
-import static gccc.HTMLUtil.*;
-import static java.util.stream.Collectors.*;
+import static gccc.HTMLUtil.$;
+import static gccc.HTMLUtil.attrs;
+import static gccc.HTMLUtil.escape;
+import static gccc.HTMLUtil.page;
+import static gccc.HTMLUtil.tag;
+import static java.util.stream.Collectors.toList;
+import gccc.Competition;
+import gccc.HTMLUtil.HTML;
+
+import java.util.Map;
 
 public class Home extends AbstractHandler {
 

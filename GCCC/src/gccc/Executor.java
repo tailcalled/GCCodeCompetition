@@ -2,12 +2,8 @@ package gccc;
 
 import gccc.Test.TestException;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
@@ -80,6 +76,9 @@ public class Executor implements AutoCloseable {
 				int n=fileName.lastIndexOf(".");
 				String name=n>=0 ? fileName.substring(0, n) : fileName;
 				command=new String[] { javaPath+"java", name };
+			}
+			else if (fileName.endsWith(".jar")) {
+				command=new String[] { javaPath+"java", "-jar", fileName };
 			}
 			else
 				throw new Exception("Unknown file type: "+fileName);
@@ -181,7 +180,7 @@ public class Executor implements AutoCloseable {
 					bw.write(input);
 				}
 			}
-			String output=readInputStream(process.getInputStream())+readInputStream(process.getErrorStream());
+			String output=Tools.readInputStream(process.getInputStream())+Tools.readInputStream(process.getErrorStream());
 			int exitCode = process.waitFor();
 			timeoutThread.interrupt();
 			System.out.println(commandLine+" completed with exit code "+exitCode);
@@ -191,20 +190,6 @@ public class Executor implements AutoCloseable {
 		}
 		finally {
 			process.destroy();
-		}
-	}
-	
-	private String readInputStream(InputStream input) throws IOException {
-		try (InputStreamReader ir=new InputStreamReader(input);
-			 BufferedReader r=new BufferedReader(ir)) {
-			StringBuilder output=new StringBuilder();
-			while (true) {
-				String line = r.readLine();
-				if (line==null)
-					break;
-				output.append(line).append("\n");
-			}
-			return output.toString();
 		}
 	}
 	
