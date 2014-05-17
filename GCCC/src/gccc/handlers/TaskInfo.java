@@ -6,7 +6,7 @@ import gccc.*;
 import static gccc.HTMLUtil.*;
 import static java.util.stream.Collectors.*;
 
-public class TaskInfo extends AbstractHandler {
+public class TaskInfo extends HTMLHandler {
 
 	public TaskInfo(Competition competition) {
 		super(competition);
@@ -25,12 +25,11 @@ public class TaskInfo extends AbstractHandler {
 				escape("Click "), tag("a", attrs($("href", "/")), escape("here")), escape(" to return to the main page.")
 			),
 			tag("p",
-				escape("Click "), tag("a", attrs($("href", "/doc?problem=" + problem.getName())), escape("here")),
+				escape("Click "), tag("a", attrs($("href", "/doc/" + problem.getName() + "?problem=" + problem.getName())), escape("here")),
 				escape(" to download the documentation.")
 			),
 			tag("form", attrs($("action", "/submit?problem=" + problem.getName()), $("method", "post"), $("enctype", "multipart/form-data")),
 				escape("Submit attempt."), tag("br"),
-				escape("Language: "), escape("Only Java for now."), tag("br"),
 				escape("File: "), tag("input", attrs($("name", "upload"), $("type", "file"))), tag("br"),
 				tag("input", attrs($("type", "submit")))
 			),

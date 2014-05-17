@@ -7,7 +7,7 @@ import gccc.*;
 import static gccc.HTMLUtil.*;
 import static java.util.stream.Collectors.*;
 
-public class Submission extends AbstractHandler {
+public class Submission extends HTMLHandler {
 
 	private final File parentDir;
 

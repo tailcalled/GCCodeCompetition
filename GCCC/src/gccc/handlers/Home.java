@@ -6,7 +6,7 @@ import gccc.*;
 import static gccc.HTMLUtil.*;
 import static java.util.stream.Collectors.*;
 
-public class Home extends AbstractHandler {
+public class Home extends HTMLHandler {
 
 	public Home(Competition competition) {
 		super(competition);
@@ -40,7 +40,6 @@ public class Home extends AbstractHandler {
 						tag("option", attrs($("value", t.getName())), escape(t.getDisplayName()))
 					).collect(toList())
 				), tag("br"),
-				escape("Language: "), escape("Only Java for now."), tag("br"),
 				escape("File: "), tag("input", attrs($("name", "upload"), $("type", "file"))), tag("br"),
 				tag("input", attrs($("type", "submit")))
 			)
