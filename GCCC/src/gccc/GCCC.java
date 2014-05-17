@@ -22,9 +22,13 @@ public class GCCC {
 	public class Handlers {
 		public final HttpHandler home;
 		public final HttpHandler submission;
+		public final HttpHandler taskInfo;
+		public final HttpHandler doc;
 		private Handlers(Competition competition) {
 			home = new Home(competition);
 			submission = new Submission(competition, SUBMISSIONS);
+			taskInfo = new TaskInfo(competition);
+			doc = new Doc(competition, SUBMISSIONS);
 		}
 	}
 
@@ -40,6 +44,8 @@ public class GCCC {
 		server.createContext("/", gccc.handlers.home);
 		server.createContext("/submission", gccc.handlers.submission);
 		server.createContext("/submit", gccc.handlers.submission);
+		server.createContext("/task", gccc.handlers.taskInfo);
+		server.createContext("/doc", gccc.handlers.doc);
 		server.setExecutor(null);
 		server.start();
 	}

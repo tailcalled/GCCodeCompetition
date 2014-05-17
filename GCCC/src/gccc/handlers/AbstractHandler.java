@@ -9,27 +9,6 @@ import static gccc.HTMLUtil.*;
 
 public abstract class AbstractHandler implements HttpHandler {
 
-	protected final Competition competition;
-
-	public AbstractHandler(Competition competition) {
-		this.competition = competition;
-	}
-
-	public class Session {
-		private final HttpExchange sess;
-		private final Map<String, String> params;
-		public Session(HttpExchange sess, Map<String, String> params) {
-			this.sess = sess;
-			this.params = params;
-		}
-		public Map<String, String> getParams() {
-			return Collections.unmodifiableMap(params);
-		}
-		public User getUser() {
-			return competition.getUserByAddress(sess.getRemoteAddress().getAddress());
-		}
-	}
-
 	private Map<String, String> parseParams(HttpExchange sess) throws Throwable {
 		Headers headers = sess.getRequestHeaders();
 		Map<String, String> params = new HashMap<String, String>();
@@ -119,25 +98,7 @@ public abstract class AbstractHandler implements HttpHandler {
 	public void handle(HttpExchange sess) {
 		try {
 			Map<String, String> params = parseParams(sess);
-			Session session = new Session(sess, params);
-			String method = sess.getRequestMethod();
-			int code = 200;
-			HTML result = null;
-			if (method.equalsIgnoreCase("get")) {
-				result = get(session);
-			}
-			else if (method.equalsIgnoreCase("post")) {
-				result = post(session);
-			}
-			if (result == null) {
-				code = 405;
-				result = page(
-					tag("p",
-						escape("Unsupported method!")
-					)
-				);
-			}
-			respond(code, sess, result);
+			handle(sess, params);
 		}
 		catch (Throwable t1) {
 			t1.printStackTrace();
@@ -155,9 +116,6 @@ public abstract class AbstractHandler implements HttpHandler {
 		}
 	}
 
-	public HTML post(Session sess) throws Throwable {
-		return null;
-	}
-	public abstract HTML get(Session sess) throws Throwable;
+	public abstract void handle(HttpExchange sess, Map<String, String> params) throws Throwable;
 
 }

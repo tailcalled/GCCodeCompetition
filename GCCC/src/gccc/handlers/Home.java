@@ -11,7 +11,7 @@ import gccc.HTMLUtil.HTML;
 
 import java.util.Map;
 
-public class Home extends AbstractHandler {
+public class Home extends HTMLHandler {
 
 	public Home(Competition competition) {
 		super(competition);
@@ -33,6 +33,11 @@ public class Home extends AbstractHandler {
 				escape("Change name:"), tag("input", attrs($("type", "text"), $("name", "newUsername"))),
 				tag("input", attrs($("type", "submit")))
 			),
+			tag("ll",
+				competition.getTasks().stream().map(t ->
+					tag("li", tag("a", attrs($("href", "/task?problem=" + t.getName())), escape(t.getDisplayName())))
+				).collect(toList())
+			),
 			tag("form", attrs($("action", "/submit"), $("method", "post"), $("enctype", "multipart/form-data")),
 				escape("Submit attempt."), tag("br"),
 				escape("Problem: "), tag("select", attrs($("name", "problem")),
@@ -40,7 +45,6 @@ public class Home extends AbstractHandler {
 						tag("option", attrs($("value", t.getName())), escape(t.getDisplayName()))
 					).collect(toList())
 				), tag("br"),
-				escape("Language: "), escape("Only Java for now."), tag("br"),
 				escape("File: "), tag("input", attrs($("name", "upload"), $("type", "file"))), tag("br"),
 				tag("input", attrs($("type", "submit")))
 			)

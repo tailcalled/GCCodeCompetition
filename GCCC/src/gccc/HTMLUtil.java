@@ -70,9 +70,9 @@ public class HTMLUtil {
 	public static void respond(int code, HttpExchange sess, HTML response) throws Throwable {
 		byte[] bytes = response.toString().getBytes("UTF-8");
 		sess.sendResponseHeaders(code, bytes.length);
-		OutputStream os = sess.getResponseBody();
-		os.write(bytes);
-		os.close();
+		try (OutputStream os = sess.getResponseBody()) {
+			os.write(bytes);
+		}
 	}
 
 }

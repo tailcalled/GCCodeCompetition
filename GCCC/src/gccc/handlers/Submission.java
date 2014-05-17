@@ -7,7 +7,7 @@ import gccc.*;
 import static gccc.HTMLUtil.*;
 import static java.util.stream.Collectors.*;
 
-public class Submission extends AbstractHandler {
+public class Submission extends HTMLHandler {
 
 	private final File parentDir;
 
@@ -65,23 +65,15 @@ public class Submission extends AbstractHandler {
 				return resultInfo;
 			}),
 			tag("p",
-				escape("Click "), tag("a", attrs($("href", "/")), escape("here")),
-				escape(" to return to the main page. "), escape("All attempts by you:")
+				escape("Click "), tag("a", attrs($("href", "/")), escape("here")), escape(" to return to the main page. "),
+				escape("Click "), tag("a", attrs($("href", "/task?problem=" + problem.getName())), escape("here")),
+				escape(" to go to the task page. All attempts by you:")
 			),
 			code(() -> {
 				HTML attemptsInfo;
 				if (attempts.size() > 0) {
 					attemptsInfo = tag("ll", attempts.stream().map((attempt) -> {
-						AttemptResult result = attempt.getResult();
-						String status;
-						if (result == null) status = "waiting...";
-						else if (result.isSuccess()) status = "success!";
-						else status = "failure";
-						return tag("li",
-							tag("a", attrs($("href", "/submission?problem=" + problem.getName() + "&attempt=" + attempt.getAttemptNum())),
-								escape("Attempt #" + attempt.getAttemptNum() + ": " + status)
-							)
-						);
+						return tag("li", render(attempt));
 					}).collect(toList()));
 				}
 				else {
@@ -89,6 +81,17 @@ public class Submission extends AbstractHandler {
 				}
 				return attemptsInfo;
 			})
+		);
+	}
+
+	public static HTML render(Attempt attempt) {
+		AttemptResult result = attempt.getResult();
+		String status;
+		if (result == null) status = "waiting...";
+		else if (result.isSuccess()) status = "success!";
+		else status = "failure";
+		return tag("a", attrs($("href", "/submission?problem=" + attempt.getTask().getName() + "&attempt=" + attempt.getAttemptNum())),
+			escape("Attempt #" + attempt.getAttemptNum() + ": " + status)
 		);
 	}
 
