@@ -21,7 +21,6 @@ public class Competition implements AutoCloseable {
 
 	public Competition(File folder) {
 		threadPool = new ThreadPool();
-		users = new HashMap<InetAddress, User>();
 		executor = new Executor(queue, threadPool);
 		this.folder = folder;
 	}
@@ -43,10 +42,6 @@ public class Competition implements AutoCloseable {
 		if (name==null)
 			return Optional.empty();
 		return Optional.ofNullable(tasks.get(name));
-	}
-	
-	public Collection<User> getUsers() {
-		return users.values();
 	}
 	
 	public User getUserByAddress(InetAddress address) {

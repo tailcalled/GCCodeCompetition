@@ -70,9 +70,11 @@ public class CompetitionFileHandler {
 			List<Task> tasks = TaskFileHandler.getTasks(folder);
 			for (Task task: tasks) {
 				competition.addTask(task);
+				System.out.println("Added task " + task.getName());
 				for (User user: competition.getUsers()) {
-					File submissions = new File(folder, user.getInternalName());
+					File submissions = new File(folder, task.getName() + "/" + user.getInternalName());
 					if (submissions.exists()) {
+						System.out.println("Adding submissions from " + user.getName());
 						for (int attemptN = 0;; attemptN++) {
 							File attemptFolder = new File(submissions, "attempt" + attemptN);
 							if (attemptFolder.exists()) {
