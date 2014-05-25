@@ -44,7 +44,8 @@ public class UserTable extends HTMLHandler {
 				tag("tr", 
 					tag("th", escape("Name")),
 					tag("th", escape("IP-address")),
-					tag("th", escape("Attempts"))
+					tag("th", escape("Attempts")),
+					tag("th", escape("Show attempts"))
 				),
 				users.stream().map((u) -> {
 					return render(u, task);
@@ -59,8 +60,8 @@ public class UserTable extends HTMLHandler {
 		return tag("tr", 
 				tag("td", escape(user.getName())),
 				tag("td", escape(user.getAddress().toString())),
+				tag("td", escape(Integer.toString(attempts.size()))),
 				tag("td", 
-					escape(Integer.toString(attempts.size())),
 					tag("a", attrs($("href", "attempts?user="+user.getName()+taskLink)),
 						escape("Show")
 					)

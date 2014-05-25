@@ -43,6 +43,10 @@ public class TestResult {
 		return test;
 	}
 
+	public Attempt getAttempt() {
+		return attempt;
+	}
+
 	private final Attempt attempt;
 	private boolean success=true;
 	private long durationms=0;

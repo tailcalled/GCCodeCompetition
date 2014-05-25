@@ -58,8 +58,13 @@ public class TaskTable extends HTMLHandler {
 		List<Attempt> attempts = competition.getAttempts(users, Arrays.asList(task));
 		String userLink=users.isEmpty() ? "" : "&user="+users.get(0).getName();
 		return tag("tr", 
-				tag("td", escape(task.getName())),
-				tag("td", escape("")),
+				tag("td", escape(task.getDisplayName())),
+				tag("td", 
+					tag("a", 
+						attrs($("href", "/doc/" + task.getName() + "?problem=" + task.getName())), 
+						escape("Description")
+					)
+				),
 				tag("td", escape(Integer.toString(attempts.size()))),
 				tag("td", 
 					tag("a", attrs($("href", "attempts?task="+task.getName()+userLink)),

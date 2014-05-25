@@ -3,6 +3,7 @@ package gccc;
 import gccc.handlers.AttemptSubmit;
 import gccc.handlers.AttemptTable;
 import gccc.handlers.Doc;
+import gccc.handlers.FileHandler;
 import gccc.handlers.Home;
 import gccc.handlers.Submission;
 import gccc.handlers.TaskInfo;
@@ -43,6 +44,7 @@ public class GCCC implements AutoCloseable {
 		public final HttpHandler users;
 		public final HttpHandler tasks;
 		public final HttpHandler tests;
+		public final HttpHandler files;
 		private Handlers(Competition competition) {
 			home = new Home(competition);
 			submission = new Submission(competition);
@@ -53,6 +55,7 @@ public class GCCC implements AutoCloseable {
 			users=new UserTable(competition);
 			tasks=new TaskTable(competition);
 			tests=new TestTable(competition);
+			files=new FileHandler(competition);
 		}
 	}
 
@@ -60,7 +63,7 @@ public class GCCC implements AutoCloseable {
 		this.competition = competition;
 		handlers = new Handlers(competition);
 		this.server = server;
-		server.createContext("/", handlers.home);
+		server.createContext("/", handlers.tasks);
 		server.createContext("/submission", handlers.submission);
 		server.createContext("/submit", handlers.submission);
 		server.createContext("/task", handlers.taskInfo);
@@ -70,6 +73,7 @@ public class GCCC implements AutoCloseable {
 		server.createContext("/users", handlers.users);
 		server.createContext("/tasks", handlers.tasks);
 		server.createContext("/tests", handlers.tests);
+		server.createContext("/file", handlers.files);
 	}
 
 	public HttpServer getServer() {

@@ -9,6 +9,8 @@ public class Task {
 		this.displayName = displayName;
 		this.maxTimems = maxTimems;
 		this.tests = tests;
+		for (Test test: tests)
+			test.setTask(this);
 	}
 
 	public int getMaxTimems() {

@@ -34,11 +34,19 @@ public abstract class Test {
 		}
 	}
 
-
 	public int getNumber() {
 		return number;
 	}
 
+	public Task getTask() {
+		return task;
+	}
+
+	public void setTask(Task task) {
+		this.task = task;
+	}
 
 	private final int number;
+	private Task task;
+
 }

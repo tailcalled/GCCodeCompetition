@@ -48,6 +48,7 @@ public class TestTable extends HTMLHandler {
 					tag("th", escape("Status")),
 					tag("th", escape("Duration")),
 					tag("th", escape("Message")),
+					tag("th", escape("Input")),
 					tag("th", escape("Output"))
 				),
 				attempt.getResult().get().getTestResults().isEmpty() ?
@@ -60,12 +61,24 @@ public class TestTable extends HTMLHandler {
 	}
 	
 	public static HTML render(TestResult result) {
+		String link="/file?task="+result.getAttempt().getTask().getName()+"&user="+result.getAttempt().getUser().getName()+"&index="+result.getAttempt().getAttemptNum()+"&test="+result.getTest().getNumber();
 		return tag("tr", 
 			tag("td", escape(Integer.toString(result.getTest().getNumber()))),
 			tag("td", result.isSuccess() ? AttemptTable.success : AttemptTable.failure),
 			tag("td", escape(String.format("%.3f",  result.getDurationms()/1000.0))),
 			tag("td", tag("pre", escape(result.getErrorMessage()))),
-			tag("td", tag("pre", escape(result.getOutput())))
+			tag("td", 
+				tag("a", 
+					attrs($("href", link+"&file=input")), 
+					escape("Input")
+				)
+			),
+			tag("td", 
+				tag("a", 
+					attrs($("href", link+"&file=output")), 
+					escape("Output")
+				)
+			)
 		);
 	}
 	
@@ -75,6 +88,7 @@ public class TestTable extends HTMLHandler {
 			tag("td", result.isSuccess() ? AttemptTable.success : AttemptTable.failure),
 			tag("td", escape(String.format("%.3f",  result.getDurationms()/1000.0))),
 			tag("td", tag("pre", escape(result.getErrorMessage()))),
+			tag("td", escape("")),
 			tag("td", tag("pre", escape(result.getOutput())))
 		);
 	}
