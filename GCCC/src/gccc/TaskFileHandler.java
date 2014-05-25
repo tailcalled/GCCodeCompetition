@@ -31,11 +31,7 @@ public class TaskFileHandler {
 			Properties properties = new Properties();
 			try (InputStream input=new FileInputStream(infoFile)) {
 				properties.load(input);
-				String name=properties.getProperty("name", "");
-				if (name.isEmpty()) {
-					System.out.println("Cannot find name entry in "+folder.getAbsolutePath()+"/task.inf");
-					return null;
-				}
+				String name=folder.getName();
 				String displayName=properties.getProperty("displayname", name);
 				long maxtimems=Tools.getLong(properties, "maxtimems", 1000);
 				List<Test> tests=new ArrayList<>();

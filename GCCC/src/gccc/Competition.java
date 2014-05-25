@@ -15,21 +15,14 @@ public class Competition implements AutoCloseable {
 	private final Map<String, Task> tasks = new ConcurrentHashMap<>();
 	private final AttemptQueue queue = new AttemptQueue();
 	private final Executor executor;
+	private final ThreadPool threadPool;
 
 	private final File folder;
 
 	public Competition(File folder) {
-		ThreadPool threadPool = new ThreadPool();
+		threadPool = new ThreadPool();
 		executor = new Executor(queue, threadPool);
 		this.folder = folder;
-	}
-
-	public static Competition loadCompetition(File folder) throws InterruptedException {
-		Competition competition = new Competition(folder);
-		List<Task> tasks = TaskFileHandler.getTasks(folder);
-		for (Task task: tasks)
-			competition.addTask(task);
-		return competition;
 	}
 
 	public File getFolder() {
@@ -37,6 +30,9 @@ public class Competition implements AutoCloseable {
 	}
 	public Collection<Task> getTasks() {
 		return tasks.values();
+	}
+	public Collection<User> getUsers() {
+		return users.values();
 	}
 	public void addTask(Task t) {
 		tasks.put(t.getName(), t);
@@ -48,18 +44,25 @@ public class Competition implements AutoCloseable {
 		return Optional.ofNullable(tasks.get(name));
 	}
 	
-	public Collection<User> getUsers() {
-		return users.values();
-	}
-	
 	public User getUserByAddress(InetAddress address) {
 		synchronized(users) {
 			if (users.containsKey(address)) {
 				return users.get(address);
 			}
-			users.put(address, new User(address));
+			users.put(address, new User(address, this));
+			usersChanged();
 			return users.get(address);
 		}
+	}
+	public void usersChanged() {
+		threadPool.execute(() -> {
+			try {
+				CompetitionFileHandler.saveCompetition(folder, this);
+			}
+			catch (InterruptedException e) {
+				// ending anyway
+			}
+		});
 	}
 	
 	public Optional<User> getUserByName(String name) {
