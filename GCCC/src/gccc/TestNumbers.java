@@ -6,7 +6,8 @@ import java.util.Scanner;
 
 public class TestNumbers extends Test {
 
-	public TestNumbers(String input, String output) {
+	public TestNumbers(String input, String output, int number) {
+		super(number);
 		this.input = input;
 		List<Long> values=new ArrayList<>();
 		try (Scanner scanner = new Scanner(output)) {

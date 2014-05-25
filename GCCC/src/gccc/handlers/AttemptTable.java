@@ -11,8 +11,10 @@ import gccc.AttemptResult;
 import gccc.Competition;
 import gccc.HTMLUtil.HTML;
 import gccc.Task;
+import gccc.TestResult;
 import gccc.User;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -80,7 +82,8 @@ public class AttemptTable extends HTMLHandler {
 					tag("th", escape("Task")),
 					tag("th", escape("Submitted")),
 					tag("th", escape("Status")),
-					tag("th", escape("Duration"))
+					tag("th", escape("Duration")),
+					tag("th", escape("Details"))
 				),
 				attempts.stream().map((attempt) -> {
 					return render(attempt);
@@ -89,20 +92,40 @@ public class AttemptTable extends HTMLHandler {
 		);
 	}
 
+	public static final HTML success=tag("font", attrs($("color", "green")), escape("\u2713"));
+	public static final HTML failure=tag("font", attrs($("color", "red")), escape("\u00F7"));
+	
 	public static HTML render(Attempt attempt) {
 		Optional<AttemptResult> result = attempt.getResult();
+		HTML status=escape("waiting...");
+		if (result.isPresent()) {
+			AttemptResult ar=result.get();
+			List<TestResult> rs=ar.getTestResults();
+			if (rs.isEmpty())
+				status=ar.isSuccess() ? success : failure;
+			else {
+				List<HTML> s=new ArrayList<>();
+				for (TestResult t: rs) {
+					s.add(t.isSuccess() ? success : failure);
+				}
+				status=tag("div", s);
+			}
+		}
 		return tag("tr", 
 			tag("td", escape(attempt.getUser().getName())),
 			tag("td", escape(attempt.getTask().getDisplayName())),
 			tag("td", escape(attempt.getCreated().toString())),
-			tag("td", escape(
-					result.map((r)->r.isSuccess() ? "success!" : "failure").orElse("waiting...")
-			)),
+			tag("td", status),
 			tag("td", 
 				escape(
 					result.map(
-						(r)->String.format("%.1f", r.getDurationms()/1000.0)
+						(r)->String.format("%.3f", r.getDurationms()/1000.0)
 					).orElse("")
+				)
+			),
+			tag("td", 
+				tag("a", attrs($("href", "tests?task="+attempt.getTask().getName()+"&user="+attempt.getUser().getName()+"&index="+attempt.getAttemptNum())),
+					escape("Details")
 				)
 			)
 		);

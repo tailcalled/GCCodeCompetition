@@ -1,5 +1,8 @@
 package gccc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AttemptResult {
 
 	public AttemptResult(Attempt attempt) {
@@ -15,11 +18,10 @@ public class AttemptResult {
 	}
 
 	public long getDurationms() {
-		return durationms;
-	}
-
-	public void setDurationms(long durationms) {
-		this.durationms = durationms;
+		long total=0;
+		for (TestResult r: testResults)
+			total+=r.getDurationms();
+		return total;
 	}
 
 	public String getOutput() {
@@ -38,9 +40,21 @@ public class AttemptResult {
 		this.errorMessage = errorMessage;
 	}
 
+	public List<TestResult> getTestResults() {
+		return testResults;
+	}
+
+	public void addTestResult(TestResult testResult) {
+		this.testResults.add(testResult);
+		if (!testResult.isSuccess()) {
+			success=false;
+			errorMessage=testResult.getErrorMessage();
+		}
+	}
+
 	private final Attempt attempt;
 	private boolean success;
-	private long durationms=0;
 	private String output="";
 	private String errorMessage="";
+	private final List<TestResult> testResults=new ArrayList<>();
 }

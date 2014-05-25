@@ -39,8 +39,12 @@ public class TestResult {
 		this.errorMessage = errorMessage;
 	}
 
+	public Test getTest() {
+		return test;
+	}
+
 	private final Attempt attempt;
-	private boolean success;
+	private boolean success=true;
 	private long durationms=0;
 	private String output="";
 	private String errorMessage="";

@@ -45,7 +45,7 @@ public class TaskFileHandler {
 					if (!testInput.exists() || !testOutput.exists())
 						break;
 					try {
-						tests.add(new TestNumbers(Tools.readFile(testInput), Tools.readFile(testOutput)));
+						tests.add(new TestNumbers(Tools.readFile(testInput), Tools.readFile(testOutput), i));
 					}
 					catch (Throwable error) {
 						Tools.checkError(error);

@@ -5,6 +5,10 @@ import java.util.Scanner;
 
 public abstract class Test {
 
+	public Test(int number) {
+		this.number = number;
+	}
+	
 	public abstract String getInput();
 	public abstract void verifyOutput(String output) throws Exception;
 	
@@ -29,5 +33,12 @@ public abstract class Test {
 			}
 		}
 	}
-	
+
+
+	public int getNumber() {
+		return number;
+	}
+
+
+	private final int number;
 }

@@ -50,7 +50,6 @@ public class Executor implements AutoCloseable {
 	}
 	
 	public void runAttempt(Attempt attempt) {
-		long start=0;
 		AttemptResult result = new AttemptResult(attempt);
 		try {
 			File file=attempt.getFile();
@@ -84,22 +83,39 @@ public class Executor implements AutoCloseable {
 			}
 			else
 				throw new Exception("Unknown file type: "+fileName);
-			start=System.currentTimeMillis();
 			int tn=1;
 			for (Test test: attempt.getTask().getTests()) {
 				System.out.println("Test "+tn+" of "+fileName+" starts");
+				TestResult testResult = new TestResult(attempt, test);
+				long start=System.currentTimeMillis();
 				try {
 					String output=run(command, file.getParentFile(), test.getInput(), attempt.getTask().getMaxTimems());
-					result.setOutput(output);
+					testResult.setOutput(output);
 					test.verifyOutput(output);
 				}
 				catch (InterruptedException error) {
 					throw error;
 				}
 				catch (Throwable error) {
-					throw new Exception("Test "+tn+" of "+fileName+" fails", error);
+					System.out.println("Test "+tn+" of "+fileName+" fails");
+					error.printStackTrace();
+					testResult.setSuccess(false);
+					testResult.setErrorMessage(error.toString());
+					for (Throwable e=error; e!=null; e=e.getCause()) {
+						if (e instanceof ExecutionException) {
+							ExecutionException ee=(ExecutionException)e;
+							testResult.setErrorMessage(ee.getMessage());
+							testResult.setOutput(ee.getOutput());
+						}
+						else if (e instanceof TestException) {
+							testResult.setErrorMessage(e.getMessage());
+						}
+					}
 				}
-				System.out.println("Test "+tn+" of "+fileName+" completes");
+				long duration=System.currentTimeMillis()-start;
+				testResult.setDurationms(duration);
+				result.addTestResult(testResult);
+				System.out.println("Test "+tn+" of "+fileName+" completes. Duration was "+duration+" ms");
 				tn++;
 			}
 			result.setSuccess(true);
@@ -108,22 +124,19 @@ public class Executor implements AutoCloseable {
 			return;
 		}
 		catch (Throwable error) {
+			error.printStackTrace();
 			result.setSuccess(false);
+			result.setErrorMessage(error.toString());
 			for (Throwable e=error; e!=null; e=e.getCause()) {
 				if (e instanceof ExecutionException) {
 					ExecutionException ee=(ExecutionException)e;
 					result.setErrorMessage(ee.getMessage());
 					result.setOutput(ee.getOutput());
 				}
-				else if (e instanceof TestException || e instanceof CompilationError) {
+				else if (e instanceof CompilationError) {
 					result.setErrorMessage(e.getMessage());
 				}
 			}
-		}
-		if (start!=0) {
-			long duration=System.currentTimeMillis()-start;
-			System.out.println("Testing completed. Duration was "+duration+" ms");
-			result.setDurationms(duration);
 		}
 		attempt.setResult(result);
 	}

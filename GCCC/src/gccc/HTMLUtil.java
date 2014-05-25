@@ -34,8 +34,30 @@ public class HTMLUtil {
 	}
 
 	public static HTML escape(String text) {
-		return new HTML(text);
+		StringBuilder s=new StringBuilder();
+		for (int i=0, n=text.length(); i<n; i++) {
+			char c=text.charAt(i);
+			switch (c) {
+				case '&':
+					s.append("&amp;");
+					break;
+				case '<':
+					s.append("&lt;");
+					break;
+				case '>':
+					s.append("&gt;");
+					break;
+				default:
+					if (c>126)
+						s.append("&#").append((int)c).append(";");
+					else
+						s.append(c);
+					break;
+			}
+		}
+		return new HTML(s.toString());
 	}
+	
 	@SafeVarargs
 	public static HTML tag(String tagName, Iterable<HTML>... elements) {
 		return tag(tagName, attrs(), elements);
