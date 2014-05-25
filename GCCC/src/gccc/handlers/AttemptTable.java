@@ -2,19 +2,17 @@ package gccc.handlers;
 
 import static gccc.HTMLUtil.$;
 import static gccc.HTMLUtil.attrs;
-import static gccc.HTMLUtil.code;
 import static gccc.HTMLUtil.escape;
 import static gccc.HTMLUtil.page;
 import static gccc.HTMLUtil.tag;
 import static java.util.stream.Collectors.toList;
-
-import java.util.Arrays;
-import java.util.List;
-
 import gccc.Attempt;
 import gccc.AttemptResult;
 import gccc.Competition;
 import gccc.HTMLUtil.HTML;
+
+import java.util.List;
+import java.util.Optional;
 
 public class AttemptTable extends HTMLHandler {
 
@@ -24,7 +22,11 @@ public class AttemptTable extends HTMLHandler {
 
 	@Override
 	public HTML get(Session sess) throws Throwable {
-		List<Attempt> attempts = competition.getAttempts(null, null);
+		/*Map<String, String> params = sess.getParams();
+		if (params.containsKey("newUsername")) {
+			sess.getUser().setName(params.get("newUsername"));
+		}*/
+		List<Attempt> attempts = competition.getAttempts(Optional.empty(), Optional.empty());
 		return page(
 			tag("p",
 				escape("Hello, " + sess.getUser().getName() + "! Welcome to the competition.")
@@ -48,26 +50,38 @@ public class AttemptTable extends HTMLHandler {
 				escape("File: "), tag("input", attrs($("name", "upload"), $("type", "file"))), tag("br"),
 				tag("input", attrs($("type", "submit")))
 			),
-			tag("table", attempts.stream().map((attempt) -> {
-				return render(attempt);
-			}).collect(toList()))
+			tag("table", 
+				attrs($("border", "1")),
+				tag("tr", 
+					tag("th", escape("User")),
+					tag("th", escape("Task")),
+					tag("th", escape("Submitted")),
+					tag("th", escape("Status")),
+					tag("th", escape("Duration"))
+				),
+				attempts.stream().map((attempt) -> {
+					return render(attempt);
+				}
+			).collect(toList()))
 		);
 	}
 
 	public static HTML render(Attempt attempt) {
-		AttemptResult result = attempt.getResult();
-		String status;
-		if (result == null) 
-			status = "waiting...";
-		else if (result.isSuccess()) 
-			status = "success!";
-		else 
-			status = "failure";
+		Optional<AttemptResult> result = attempt.getResult();
 		return tag("tr", 
 			tag("td", escape(attempt.getUser().getName())),
 			tag("td", escape(attempt.getTask().getDisplayName())),
 			tag("td", escape(attempt.getCreated().toString())),
-			tag("td", escape(status))
+			tag("td", escape(
+					result.map((r)->r.isSuccess() ? "success!" : "failure").orElse("waiting...")
+			)),
+			tag("td", 
+				escape(
+					result.map(
+						(r)->String.format("%.1f", r.getDurationms()/1000.0)
+					).orElse("")
+				)
+			)
 		);
 	}
 

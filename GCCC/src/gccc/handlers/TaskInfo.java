@@ -2,6 +2,7 @@ package gccc.handlers;
 
 import java.util.*;
 import java.util.function.*;
+
 import gccc.*;
 import static gccc.HTMLUtil.*;
 import static java.util.stream.Collectors.*;
@@ -18,7 +19,7 @@ public class TaskInfo extends HTMLHandler {
 			return null;
 		}
 		Task problem = competition.getTask(params.get("problem"));
-		List<Attempt> attempts = competition.getAttempts(sess.getUser(), problem);
+		List<Attempt> attempts = competition.getAttempts(Optional.of(sess.getUser()), Optional.of(problem));
 		return page(
 			tag("h1", escape(problem.getDisplayName())),
 			tag("p",

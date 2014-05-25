@@ -17,7 +17,7 @@ public class Submission extends HTMLHandler {
 		Map<String, String> params = sess.getParams();
 		if (params.containsKey("problem") && params.containsKey("upload")) {
 			Task problem = competition.getTask(params.get("problem"));
-			List<Attempt> attempts = competition.getAttempts(sess.getUser(), problem);
+			List<Attempt> attempts = competition.getAttempts(Optional.of(sess.getUser()), Optional.of(problem));
 			// WARNING: potential attack vector; filename might contain '../''es
 			File dir = new File(competition.getFolder(), problem.getName() + "/" + sess.getUser().getAddress().getHostAddress().replace(":", ".") + "/attempt" + attempts.size());
 			dir.mkdirs();
@@ -36,7 +36,7 @@ public class Submission extends HTMLHandler {
 			return null;
 		}
 		Task problem = competition.getTask(params.get("problem"));
-		List<Attempt> attempts = competition.getAttempts(sess.getUser(), problem);
+		List<Attempt> attempts = competition.getAttempts(Optional.of(sess.getUser()), Optional.of(problem));
 		int nAttempt;
 		if (params.containsKey("attempt"))
 			nAttempt = Integer.parseInt(params.get("attempt"));
@@ -47,14 +47,16 @@ public class Submission extends HTMLHandler {
 			code(() -> {
 				if (nAttempt >= 0) {
 					Attempt attempt = attempts.get(nAttempt);
-					AttemptResult result = attempt.getResult();
+					Optional<AttemptResult> result = attempt.getResult();
 					HTML resultInfo;
 					switch (attempt.getState()) {
 						case Waiting:
 						case Executing:
 							return tag("p", escape("Attempt has not been run yet."));
 						case Failed:
-							resultInfo = tag("p", escape("Your program has failed this task. The error was: " + result.getErrorMessage()));
+							String text="Your program has failed this task.";
+							text+=result.map((r)->" The error was: "+r.getErrorMessage()).orElse("");
+							resultInfo = tag("p", escape(text));
 							break;
 						case Completed:
 							resultInfo = tag("p", escape("Your program has completed this task!"));
@@ -63,7 +65,7 @@ public class Submission extends HTMLHandler {
 					}
 					return elements(
 						resultInfo,
-						tag("pre", escape(result.getOutput()))
+						tag("pre", escape(result.map((r)->r.getOutput()).orElse("")))
 					);
 				}
 				else {
@@ -91,11 +93,8 @@ public class Submission extends HTMLHandler {
 	}
 
 	public static HTML render(Attempt attempt) {
-		AttemptResult result = attempt.getResult();
-		String status;
-		if (result == null) status = "waiting...";
-		else if (result.isSuccess()) status = "success!";
-		else status = "failure";
+		Optional<AttemptResult> result = attempt.getResult();
+		String status=result.map((r)->r.isSuccess() ? "success!" : "failure").orElse("waiting...");
 		return tag("a", attrs($("href", "/submission?problem=" + attempt.getTask().getName() + "&attempt=" + attempt.getAttemptNum())),
 			escape("Attempt #" + attempt.getAttemptNum() + ": " + status)
 		);

@@ -59,10 +59,10 @@ public class Competition implements AutoCloseable {
 		}
 	}
 	
-	public List<Attempt> getAttempts(User user, Task problem) {
+	public List<Attempt> getAttempts(Optional<User> user, Optional<Task> problem) {
 		List<Attempt> res = new ArrayList<>();
 		for (Attempt a: queue.getAllAttempts()) {
-			if ((user==null || a.getUser() == user) && (problem==null || a.getTask() == problem)) {
+			if (user.map((u)->u==a.getUser()).orElse(true) && problem.map((m)->m==a.getTask()).orElse(true)) {
 				res.add(a);
 			}
 		}
