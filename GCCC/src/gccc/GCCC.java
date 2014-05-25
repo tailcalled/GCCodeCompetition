@@ -6,6 +6,8 @@ import gccc.handlers.Doc;
 import gccc.handlers.Home;
 import gccc.handlers.Submission;
 import gccc.handlers.TaskInfo;
+import gccc.handlers.TaskTable;
+import gccc.handlers.UserTable;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -37,6 +39,8 @@ public class GCCC implements AutoCloseable {
 		public final HttpHandler doc;
 		public final HttpHandler attemptTable;
 		public final HttpHandler attemptSubmit;
+		public final HttpHandler users;
+		public final HttpHandler tasks;
 		private Handlers(Competition competition) {
 			home = new Home(competition);
 			submission = new Submission(competition);
@@ -44,6 +48,8 @@ public class GCCC implements AutoCloseable {
 			doc = new Doc(competition);
 			attemptTable=new AttemptTable(competition);
 			attemptSubmit=new AttemptSubmit(competition);
+			users=new UserTable(competition);
+			tasks=new TaskTable(competition);
 		}
 	}
 
@@ -58,6 +64,8 @@ public class GCCC implements AutoCloseable {
 		server.createContext("/doc", handlers.doc);
 		server.createContext("/attempts", handlers.attemptTable);
 		server.createContext("/attemptsubmit", handlers.attemptSubmit);
+		server.createContext("/users", handlers.users);
+		server.createContext("/tasks", handlers.tasks);
 	}
 
 	public HttpServer getServer() {

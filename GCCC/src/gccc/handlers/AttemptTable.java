@@ -25,35 +25,54 @@ public class AttemptTable extends HTMLHandler {
 		super(competition);
 	}
 
+	static HTML getPageTop(Session session) {
+		return 
+			tag("div", 
+				tag("p",
+					escape("Hello, " + session.getUser().getName() + "! Welcome to the competition.")
+				),
+				tag("form", attrs($("action", "/"), $("method", "post")),
+					escape("Change name:"), tag("input", attrs($("type", "text"), $("name", "newUsername"))),
+					tag("input", attrs($("type", "submit")))
+				),
+				tag("p", 
+					tag("a", attrs($("href", "users")),
+						escape("Users")
+					),
+					escape(" "),
+					tag("a", attrs($("href", "tasks")),
+							escape("Tasks")
+					),
+					escape(" "),
+					tag("a", attrs($("href", "attempts")),
+						escape("Attempts")
+					)
+				)
+			);
+	}
+	
 	@Override
 	public HTML get(Session sess) throws Throwable {
 		Map<String, String> params = sess.getParams();
 		List<User> user=competition.getUserByName(params.get("user")).map((u)->Arrays.asList(u)).orElse(Collections.emptyList());
 		List<Task> task=competition.getTask(params.get("task")).map((u)->Arrays.asList(u)).orElse(Collections.emptyList());
-		List<Attempt> attempts = competition.getAttempts(user, task);
-		return page(
-			tag("p",
-				escape("Hello, " + sess.getUser().getName() + "! Welcome to the competition.")
-			),
-			tag("form", attrs($("action", "/"), $("method", "post")),
-				escape("Change name:"), tag("input", attrs($("type", "text"), $("name", "newUsername"))),
-				tag("input", attrs($("type", "submit")))
-			),
-			tag("ll",
-				competition.getTasks().stream().map(t ->
-					tag("li", tag("a", attrs($("href", "/task?problem=" + t.getName())), escape(t.getDisplayName())))
-				).collect(toList())
-			),
-			tag("form", attrs($("action", "/attemptsubmit"), $("method", "post"), $("enctype", "multipart/form-data")),
-				escape("Submit attempt."), tag("br"),
-				escape("Problem: "), tag("select", attrs($("name", "problem")),
-					competition.getTasks().stream().map(t ->
-						tag("option", attrs($("value", t.getName())), escape(t.getDisplayName()))
-					).collect(toList())
-				), tag("br"),
+		String header="Attempts";
+		HTML submit=tag("div");
+		if (!user.isEmpty())
+			header+=", user "+user.get(0).getName();
+		if (!task.isEmpty()) {
+			header+=", task "+task.get(0).getName();
+			submit=tag("form", attrs($("action", "/attemptsubmit?problem=" + task.get(0).getName()), $("method", "post"), $("enctype", "multipart/form-data")),
+				tag("h2", escape("Submit attempt.")),
 				escape("File: "), tag("input", attrs($("name", "upload"), $("type", "file"))), tag("br"),
 				tag("input", attrs($("type", "submit")))
-			),
+			);
+		}			
+		List<Attempt> attempts = competition.getAttempts(user, task);
+		return page(
+			getPageTop(sess),
+			submit,
+			tag("H2", escape(header+":")),
 			tag("table", 
 				attrs($("border", "1")),
 				tag("tr", 

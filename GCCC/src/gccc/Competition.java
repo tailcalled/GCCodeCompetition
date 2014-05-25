@@ -10,10 +10,9 @@ import java.util.concurrent.*;
  */
 public class Competition implements AutoCloseable {
 
-	private final Map<InetAddress, User> users;
-	private final Object usersBottleneck = new Object();
+	private final Map<InetAddress, User> users = new ConcurrentHashMap<>();
 
-	private final Map<String, Task> tasks = new ConcurrentHashMap<String, Task>();
+	private final Map<String, Task> tasks = new ConcurrentHashMap<>();
 	private final AttemptQueue queue = new AttemptQueue();
 	private final Executor executor;
 
@@ -21,7 +20,6 @@ public class Competition implements AutoCloseable {
 
 	public Competition(File folder) {
 		ThreadPool threadPool = new ThreadPool();
-		users = new HashMap<InetAddress, User>();
 		executor = new Executor(queue, threadPool);
 		this.folder = folder;
 	}
@@ -50,8 +48,12 @@ public class Competition implements AutoCloseable {
 		return Optional.ofNullable(tasks.get(name));
 	}
 	
+	public Collection<User> getUsers() {
+		return users.values();
+	}
+	
 	public User getUserByAddress(InetAddress address) {
-		synchronized (usersBottleneck) {
+		synchronized(users) {
 			if (users.containsKey(address)) {
 				return users.get(address);
 			}
@@ -63,12 +65,10 @@ public class Competition implements AutoCloseable {
 	public Optional<User> getUserByName(String name) {
 		if (name==null)
 			return Optional.empty();
-		synchronized (usersBottleneck) {
-			for (User user: users.values())
-				if (user.getName().equals(name))
-					return Optional.of(user);
-			return Optional.empty();
-		}
+		for (User user: users.values())
+			if (user.getName().equals(name))
+				return Optional.of(user);
+		return Optional.empty();
 	}
 	
 	public List<Attempt> getAttempts(Collection<User> users, Collection<Task> problems) {
