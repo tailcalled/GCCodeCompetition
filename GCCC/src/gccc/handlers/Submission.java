@@ -9,11 +9,8 @@ import static java.util.stream.Collectors.*;
 
 public class Submission extends HTMLHandler {
 
-	private final File parentDir;
-
-	public Submission(Competition competition, File parentDir) {
+	public Submission(Competition competition) {
 		super(competition);
-		this.parentDir = parentDir;
 	}
 
 	public HTML post(Session sess) throws Throwable {
@@ -22,7 +19,7 @@ public class Submission extends HTMLHandler {
 			Task problem = competition.getTask(params.get("problem"));
 			List<Attempt> attempts = competition.getAttempts(sess.getUser(), problem);
 			// WARNING: potential attack vector; filename might contain '../''es
-			File dir = new File(parentDir, problem.getName() + "/" + sess.getUser().getAddress().getHostAddress().replace(":", ".") + "/attempt" + attempts.size());
+			File dir = new File(competition.getFolder(), problem.getName() + "/" + sess.getUser().getAddress().getHostAddress().replace(":", ".") + "/attempt" + attempts.size());
 			dir.mkdirs();
 			File file = new File(dir, params.get("upload__filename"));
 			file.delete();
