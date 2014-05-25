@@ -71,16 +71,17 @@ public class Executor implements AutoCloseable {
 			}
 			String fileName=file.getName();
 			String[] command;
-			if (fileName.endsWith(".exe"))
-				command=new String[] { fileName };
-			else if (fileName.endsWith(".class")) {
+			if (fileName.endsWith(".class")) {
 				int n=fileName.lastIndexOf(".");
 				String name=n>=0 ? fileName.substring(0, n) : fileName;
 				command=new String[] { javaPath+"java", name };
 			}
-			else if (fileName.endsWith(".jar")) {
+			else if (fileName.endsWith(".exe"))
+				command=new String[] { fileName };
+			else if (fileName.endsWith(".jar"))
 				command=new String[] { javaPath+"java", "-jar", fileName };
-			}
+			else if (fileName.endsWith(".py"))
+				command=new String[] { "python", fileName };
 			else
 				throw new Exception("Unknown file type: "+fileName);
 			int tn=1;
