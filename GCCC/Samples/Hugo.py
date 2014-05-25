@@ -1,1 +1,1 @@
-print "Måske fire?"
+print("4")
