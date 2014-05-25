@@ -3,6 +3,7 @@ package gccc;
 import java.io.*;
 import java.net.*;
 import java.util.Collections;
+import java.util.List;
 
 import com.sun.net.httpserver.*;
 
@@ -32,9 +33,12 @@ public class GCCC {
 		}
 	}
 
-	public GCCC() {
+	public GCCC() throws InterruptedException {
 		competition = new Competition();
-		competition.addTask(new Task("hworld", "Hello, World!", 1000, Collections.<Test>emptyList()));
+		List<Task> tasks = TaskFileHandler.getTasks(SUBMISSIONS);
+		for (Task task: tasks)
+			competition.addTask(task);
+		//competition.addTask(new Task("hworld", "Hello, World!", 1000, Collections.<Test>emptyList()));
 		handlers = new Handlers(competition);
 	}
 
