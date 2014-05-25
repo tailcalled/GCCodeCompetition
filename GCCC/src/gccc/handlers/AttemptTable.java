@@ -44,7 +44,7 @@ public class AttemptTable extends HTMLHandler {
 					tag("li", tag("a", attrs($("href", "/task?problem=" + t.getName())), escape(t.getDisplayName())))
 				).collect(toList())
 			),
-			tag("form", attrs($("action", "/submit"), $("method", "post"), $("enctype", "multipart/form-data")),
+			tag("form", attrs($("action", "/attemptsubmit"), $("method", "post"), $("enctype", "multipart/form-data")),
 				escape("Submit attempt."), tag("br"),
 				escape("Problem: "), tag("select", attrs($("name", "problem")),
 					competition.getTasks().stream().map(t ->

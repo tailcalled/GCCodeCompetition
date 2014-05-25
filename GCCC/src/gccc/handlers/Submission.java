@@ -3,6 +3,7 @@ package gccc.handlers;
 import java.util.*;
 import java.util.function.*;
 import java.io.*;
+
 import gccc.*;
 import static gccc.HTMLUtil.*;
 import static java.util.stream.Collectors.*;
@@ -30,7 +31,9 @@ public class Submission extends HTMLHandler {
 		}
 		return get(sess);
 	}
-	public HTML get(Session sess) {
+	
+	@Override
+	public HTML get(Session sess) throws Throwable {
 		Map<String, String> params = sess.getParams();
 		if (!params.containsKey("problem")) {
 			return null;
