@@ -43,15 +43,17 @@ public class Competition implements AutoCloseable {
 			return users.get(address);
 		}
 	}
+	
 	public List<Attempt> getAttempts(User user, Task problem) {
-		List<Attempt> res = new ArrayList<Attempt>();
+		List<Attempt> res = new ArrayList<>();
 		for (Attempt a: queue.getAllAttempts()) {
-			if (a.getUser() == user && a.getTask() == problem) {
+			if ((user==null || a.getUser() == user) && (problem==null || a.getTask() == problem)) {
 				res.add(a);
 			}
 		}
 		return res;
 	}
+	
 	public void submitAttempt(Attempt attempt) {
 		queue.add(attempt);
 	}
