@@ -4,8 +4,9 @@ import java.net.InetAddress;
 
 public class User {
 	
-	public User(InetAddress address) {
+	public User(InetAddress address, Competition competition) {
 		this.address = address;
+		this.competition = competition;
 	}
 	
 	public InetAddress getAddress() {
@@ -21,6 +22,11 @@ public class User {
 
 	public void setName(String name) {
 		this.name = name;
+		competition.usersChanged();
+	}
+
+	public String getInternalName() {
+		return address.getHostAddress().replace(":", ".");
 	}
 
 	public int hashCode() {
@@ -33,6 +39,7 @@ public class User {
 		return address.equals(((User) that).address);
 	}
 
+	private final Competition competition;
 	private final InetAddress address;
 	private String name;
 

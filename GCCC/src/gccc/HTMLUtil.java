@@ -77,6 +77,5 @@ public class HTMLUtil {
 			os.write(bytes);
 		}
 	}
-	public 
 
 }
