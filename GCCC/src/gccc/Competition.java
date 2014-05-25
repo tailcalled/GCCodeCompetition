@@ -10,10 +10,9 @@ import java.util.concurrent.*;
  */
 public class Competition implements AutoCloseable {
 
-	private final Map<InetAddress, User> users;
-	private final Object usersBottleneck = new Object();
+	private final Map<InetAddress, User> users = new ConcurrentHashMap<>();
 
-	private final Map<String, Task> tasks = new ConcurrentHashMap<String, Task>();
+	private final Map<String, Task> tasks = new ConcurrentHashMap<>();
 	private final AttemptQueue queue = new AttemptQueue();
 	private final Executor executor;
 	private final ThreadPool threadPool;
@@ -39,14 +38,19 @@ public class Competition implements AutoCloseable {
 	public void addTask(Task t) {
 		tasks.put(t.getName(), t);
 	}
-	public Task getTask(String name) {
-		return tasks.get(name);
+	
+	public Optional<Task> getTask(String name) {
+		if (name==null)
+			return Optional.empty();
+		return Optional.ofNullable(tasks.get(name));
 	}
+	
+	public Collection<User> getUsers() {
+		return users.values();
+	}
+	
 	public User getUserByAddress(InetAddress address) {
-		if (users.containsKey(address)) {
-			return users.get(address);
-		}
-		synchronized (usersBottleneck) {
+		synchronized(users) {
 			if (users.containsKey(address)) {
 				return users.get(address);
 			}
@@ -66,10 +70,19 @@ public class Competition implements AutoCloseable {
 		});
 	}
 	
-	public List<Attempt> getAttempts(User user, Task problem) {
+	public Optional<User> getUserByName(String name) {
+		if (name==null)
+			return Optional.empty();
+		for (User user: users.values())
+			if (user.getName().equals(name))
+				return Optional.of(user);
+		return Optional.empty();
+	}
+	
+	public List<Attempt> getAttempts(Collection<User> users, Collection<Task> problems) {
 		List<Attempt> res = new ArrayList<>();
 		for (Attempt a: queue.getAllAttempts()) {
-			if ((user==null || a.getUser() == user) && (problem==null || a.getTask() == problem)) {
+			if ((users.isEmpty() || users.contains(a.getUser())) && (problems.isEmpty() || problems.contains(a.getTask()))) {
 				res.add(a);
 			}
 		}

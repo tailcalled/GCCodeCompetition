@@ -2,6 +2,7 @@ package gccc;
 
 import java.io.File;
 import java.util.Date;
+import java.util.Optional;
 
 public class Attempt {
 
@@ -35,12 +36,12 @@ public class Attempt {
 	/**
 	 * @return Is be null if the Attempt has not yet been executed 
 	 */
-	public AttemptResult getResult() {
+	public Optional<AttemptResult> getResult() {
 		return result;
 	}
 
 	public void setResult(AttemptResult result) {
-		this.result = result;
+		this.result = Optional.of(result);
 		setState(result.isSuccess() ? State.Completed : State.Failed);
 	}
 
@@ -60,6 +61,6 @@ public class Attempt {
 	private final Task task;
 	private final int attemptNum;
 	private State state=State.Waiting;
-	private AttemptResult result=null;
+	private Optional<AttemptResult> result=Optional.empty();
 
 }

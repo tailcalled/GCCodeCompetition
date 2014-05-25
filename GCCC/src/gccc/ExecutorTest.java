@@ -15,7 +15,7 @@ public class ExecutorTest {
 			//Attempt attempt = new Attempt(user, new File("C:/Users/Niels/git/GCCodeCompetition/jhugo/src/Main.java"), tasks.get(0), 0);
 			Attempt attempt = new Attempt(user, new File("C:/Users/Niels/git/GCCodeCompetition/jhugo/src/Main.class"), tasks.get(0), 0);
 			executor.runAttempt(attempt);
-			AttemptResult result = attempt.getResult();
+			AttemptResult result = attempt.getResult().get();
 			if (result.isSuccess())
 				System.out.println("Attempt succeeded");
 			else {

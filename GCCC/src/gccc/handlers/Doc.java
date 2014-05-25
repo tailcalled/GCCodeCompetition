@@ -18,7 +18,7 @@ public class Doc extends AbstractHandler {
 	public void handle(HttpExchange sess, Map<String, String> params) throws Throwable {
 		String method = sess.getRequestMethod();
 		if (method.equalsIgnoreCase("get") && params.containsKey("problem")) {
-			Task problem = competition.getTask(params.get("problem"));
+			Task problem = competition.getTask(params.get("problem")).get();
 			File doc = new File(competition.getFolder(), problem.getName() + "/doc.pdf");
 			sess.getResponseHeaders().set("Content-Type", "application/pdf");
 			if (!doc.exists()) {
