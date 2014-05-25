@@ -12,12 +12,7 @@ import gccc.HTMLUtil.HTML;
 import gccc.Task;
 import gccc.User;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class UserTable extends HTMLHandler {
 
@@ -55,14 +50,14 @@ public class UserTable extends HTMLHandler {
 	}
 	
 	private HTML render(User user, List<Task> tasks) {
-		List<Attempt> attempts = competition.getAttempts(Arrays.asList(user), Collections.emptyList());
+		Collection<Attempt> attempts = competition.getAttempts(Arrays.asList(user), Collections.emptyList());
 		String taskLink=tasks.isEmpty() ? "" : "&task="+tasks.get(0).getName();
 		return tag("tr", 
 				tag("td", escape(user.getName())),
 				tag("td", escape(user.getAddress().toString())),
 				tag("td", escape(Integer.toString(attempts.size()))),
 				tag("td", 
-					tag("a", attrs($("href", "attempts?user="+user.getName()+taskLink)),
+					tag("a", attrs($("href", "attempts?user="+user.getInternalName()+taskLink)),
 						escape("Show")
 					)
 				)

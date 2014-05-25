@@ -7,6 +7,10 @@ import java.util.Optional;
 public class Attempt {
 
 	public Attempt(User user, File file, Task task, int attemptNum) {
+		this(new Date(), user, file, task, attemptNum);
+	}
+	public Attempt(Date created, User user, File file, Task task, int attemptNum) {
+		this.created = created;
 		this.user = user;
 		this.file = file;
 		this.task = task;
@@ -57,7 +61,7 @@ public class Attempt {
 	
 	private final User user;
 	private final File file;
-	private final Date created=new Date();
+	private final Date created;
 	private final Task task;
 	private final int attemptNum;
 	private State state=State.Waiting;

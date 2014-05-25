@@ -1,24 +1,10 @@
 package gccc.handlers;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static gccc.HTMLUtil.$;
-import static gccc.HTMLUtil.attrs;
-import static gccc.HTMLUtil.escape;
-import static gccc.HTMLUtil.page;
-import static gccc.HTMLUtil.tag;
+import static gccc.HTMLUtil.*;
 import static java.util.stream.Collectors.toList;
-import gccc.Attempt;
-import gccc.AttemptResult;
-import gccc.Competition;
-import gccc.HTMLUtil.HTML;
-import gccc.Task;
-import gccc.TestResult;
-import gccc.Tools;
-import gccc.User;
+import gccc.*;
 
 public class TestTable extends HTMLHandler {
 
@@ -29,7 +15,7 @@ public class TestTable extends HTMLHandler {
 	@Override
 	public HTML get(Session sess) throws Throwable {
 		Map<String, String> params = sess.getParams();
-		List<User> user=competition.getUserByName(params.get("user")).map((u)->Arrays.asList(u)).orElse(Collections.emptyList());
+		List<User> user=Optional.ofNullable(params.get("user")).map((u)->Arrays.asList(competition.getUserByAddress(Tools.readIP(u)))).orElse(Collections.emptyList());
 		List<Task> task=competition.getTask(params.get("task")).map((u)->Arrays.asList(u)).orElse(Collections.emptyList());
 		long index=Tools.getLong(params.get("index"), 1);
 		Attempt attempt=null;
@@ -61,7 +47,7 @@ public class TestTable extends HTMLHandler {
 	}
 	
 	public static HTML render(TestResult result) {
-		String link="/file?task="+result.getAttempt().getTask().getName()+"&user="+result.getAttempt().getUser().getName()+"&index="+result.getAttempt().getAttemptNum()+"&test="+result.getTest().getNumber();
+		String link="/file?task="+result.getAttempt().getTask().getName()+"&user="+result.getAttempt().getUser().getInternalName()+"&index="+result.getAttempt().getAttemptNum()+"&test="+result.getTest().getNumber();
 		return tag("tr", 
 			tag("td", escape(Integer.toString(result.getTest().getNumber()))),
 			tag("td", result.isSuccess() ? AttemptTable.success : AttemptTable.failure),

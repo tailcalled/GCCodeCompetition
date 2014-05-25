@@ -3,3 +3,6 @@ competition
 		0.0.0.0.0.0.0.1
 			name
 				Niels
+		127.0.0.1
+			name
+				admin

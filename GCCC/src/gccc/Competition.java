@@ -45,6 +45,9 @@ public class Competition implements AutoCloseable {
 	}
 	
 	public User getUserByAddress(InetAddress address) {
+		if (users.containsKey(address)) {
+			return users.get(address);
+		}
 		synchronized(users) {
 			if (users.containsKey(address)) {
 				return users.get(address);
@@ -65,23 +68,23 @@ public class Competition implements AutoCloseable {
 		});
 	}
 	
-	public Optional<User> getUserByName(String name) {
-		if (name==null)
-			return Optional.empty();
-		for (User user: users.values())
-			if (user.getName().equals(name))
-				return Optional.of(user);
-		return Optional.empty();
-	}
-	
-	public List<Attempt> getAttempts(Collection<User> users, Collection<Task> problems) {
+	public Collection<Attempt> getAttempts(Collection<User> users, Collection<Task> problems) {
 		List<Attempt> res = new ArrayList<>();
 		for (Attempt a: queue.getAllAttempts()) {
 			if ((users.isEmpty() || users.contains(a.getUser())) && (problems.isEmpty() || problems.contains(a.getTask()))) {
 				res.add(a);
 			}
 		}
+		Collections.sort(res, (a, b) -> a.getCreated().compareTo(b.getCreated()));
 		return res;
+	}
+	public Attempt getAttempt(User user, Task problem, int id) {
+		for (Attempt a: queue.getAllAttempts()) {
+			if (user == a.getUser() && problem == a.getTask() && id == a.getAttemptNum()) {
+				return a;
+			}
+		}
+		throw new RuntimeException();
 	}
 	
 	public void submitAttempt(Attempt attempt) {

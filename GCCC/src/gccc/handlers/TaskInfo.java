@@ -19,7 +19,7 @@ public class TaskInfo extends HTMLHandler {
 			return null;
 		}
 		Task problem = competition.getTask(params.get("problem")).get();
-		List<Attempt> attempts = competition.getAttempts(Arrays.asList(sess.getUser()), Arrays.asList(problem));
+		Collection<Attempt> attempts = competition.getAttempts(Arrays.asList(sess.getUser()), Arrays.asList(problem));
 		return page(
 			tag("h1", escape(problem.getDisplayName())),
 			tag("p",
