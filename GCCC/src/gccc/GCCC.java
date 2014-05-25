@@ -24,6 +24,7 @@ public class GCCC implements AutoCloseable {
 	private static final File SUBMISSIONS = new File("submissions/");
 
 	private final Competition competition;
+	private final HttpServer server;
 
 	public final Handlers handlers;
 	/** Container namespace for HTTPHandlers */
@@ -34,36 +35,38 @@ public class GCCC implements AutoCloseable {
 		public final HttpHandler doc;
 		private Handlers(Competition competition) {
 			home = new Home(competition);
-			submission = new Submission(competition, SUBMISSIONS);
+			submission = new Submission(competition);
 			taskInfo = new TaskInfo(competition);
-			doc = new Doc(competition, SUBMISSIONS);
+			doc = new Doc(competition);
 		}
 	}
 
-	public GCCC() throws InterruptedException {
-		competition = new Competition();
-		List<Task> tasks = TaskFileHandler.getTasks(SUBMISSIONS);
-		for (Task task: tasks)
-			competition.addTask(task);
-		//competition.addTask(new Task("hworld", "Hello, World!", 1000, Collections.<Test>emptyList()));
+	public GCCC(HttpServer server, Competition competition) {
+		this.competition = competition;
 		handlers = new Handlers(competition);
+		this.server = server;
+		server.createContext("/", handlers.home);
+		server.createContext("/submission", handlers.submission);
+		server.createContext("/submit", handlers.submission);
+		server.createContext("/task", handlers.taskInfo);
+		server.createContext("/doc", handlers.doc);
+	}
+
+	public HttpServer getServer() {
+		return server;
 	}
 
 	public static void main(String[] args) throws Throwable {
-		gccc = new GCCC();
-		server = HttpServer.create(new InetSocketAddress(8080), 16);
-		server.createContext("/", gccc.handlers.home);
-		server.createContext("/submission", gccc.handlers.submission);
-		server.createContext("/submit", gccc.handlers.submission);
-		server.createContext("/task", gccc.handlers.taskInfo);
-		server.createContext("/doc", gccc.handlers.doc);
+		HttpServer server = HttpServer.create(new InetSocketAddress(8080), 16);
+		Competition competition = Competition.loadCompetition(SUBMISSIONS);
+		final GCCC gccc = new GCCC(server, competition);
 		server.setExecutor(null);
 		server.start();
 		JFrame frame = new JFrame();
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				server.stop(1);
+				gccc.getServer().stop(1);
 				try {
 					gccc.close();
 				} 
@@ -82,8 +85,5 @@ public class GCCC implements AutoCloseable {
 	public void close() throws Exception {
 		competition.close();
 	}
-	
-	private static HttpServer server;
-	private static GCCC gccc;
 
 }

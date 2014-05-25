@@ -1,5 +1,6 @@
 package gccc;
 
+import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -16,12 +17,26 @@ public class Competition implements AutoCloseable {
 	private final AttemptQueue queue = new AttemptQueue();
 	private final Executor executor;
 
-	public Competition() {
+	private final File folder;
+
+	public Competition(File folder) {
 		ThreadPool threadPool = new ThreadPool();
 		users = new HashMap<InetAddress, User>();
 		executor = new Executor(queue, threadPool);
+		this.folder = folder;
 	}
 
+	public static Competition loadCompetition(File folder) throws InterruptedException {
+		Competition competition = new Competition(folder);
+		List<Task> tasks = TaskFileHandler.getTasks(folder);
+		for (Task task: tasks)
+			competition.addTask(task);
+		return competition;
+	}
+
+	public File getFolder() {
+		return folder;
+	}
 	public Collection<Task> getTasks() {
 		return tasks.values();
 	}
