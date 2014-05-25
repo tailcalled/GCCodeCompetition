@@ -7,7 +7,7 @@ import java.util.concurrent.*;
 /**
  * Class for keeping track of the current state of the competition.
  */
-public class Competition {
+public class Competition implements AutoCloseable {
 
 	private final Map<InetAddress, User> users;
 	private final Object usersBottleneck = new Object();
@@ -54,6 +54,11 @@ public class Competition {
 	}
 	public void submitAttempt(Attempt attempt) {
 		queue.add(attempt);
+	}
+
+	@Override
+	public void close() throws Exception {
+		executor.close();
 	}
 
 }

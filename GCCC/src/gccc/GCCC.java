@@ -1,18 +1,25 @@
 package gccc;
 
-import java.io.*;
-import java.net.*;
-import java.util.Collections;
+import gccc.handlers.Doc;
+import gccc.handlers.Home;
+import gccc.handlers.Submission;
+import gccc.handlers.TaskInfo;
+
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.net.InetSocketAddress;
 import java.util.List;
 
-import com.sun.net.httpserver.*;
+import javax.swing.JFrame;
 
-import gccc.handlers.*;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 
 /**
  * Main class. Responsible for the UI.
  */
-public class GCCC {
+public class GCCC implements AutoCloseable {
 
 	private static final File SUBMISSIONS = new File("submissions/");
 
@@ -43,8 +50,8 @@ public class GCCC {
 	}
 
 	public static void main(String[] args) throws Throwable {
-		GCCC gccc = new GCCC();
-		HttpServer server = HttpServer.create(new InetSocketAddress(8080), 16);
+		gccc = new GCCC();
+		server = HttpServer.create(new InetSocketAddress(8080), 16);
 		server.createContext("/", gccc.handlers.home);
 		server.createContext("/submission", gccc.handlers.submission);
 		server.createContext("/submit", gccc.handlers.submission);
@@ -52,6 +59,31 @@ public class GCCC {
 		server.createContext("/doc", gccc.handlers.doc);
 		server.setExecutor(null);
 		server.start();
+		JFrame frame = new JFrame();
+		frame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				server.stop(1);
+				try {
+					gccc.close();
+				} 
+				catch (Exception e1) {
+					System.out.println("Cannot close gccc");
+					e1.printStackTrace();
+				}
+				System.exit(0);
+			}
+		});
+		frame.setVisible(true);
+		frame.setSize(300, 200);
 	}
+	
+	@Override
+	public void close() throws Exception {
+		competition.close();
+	}
+	
+	private static HttpServer server;
+	private static GCCC gccc;
 
 }
