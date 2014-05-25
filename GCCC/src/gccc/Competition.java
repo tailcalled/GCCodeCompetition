@@ -43,13 +43,14 @@ public class Competition implements AutoCloseable {
 	public void addTask(Task t) {
 		tasks.put(t.getName(), t);
 	}
-	public Task getTask(String name) {
-		return tasks.get(name);
+	
+	public Optional<Task> getTask(String name) {
+		if (name==null)
+			return Optional.empty();
+		return Optional.ofNullable(tasks.get(name));
 	}
+	
 	public User getUserByAddress(InetAddress address) {
-		if (users.containsKey(address)) {
-			return users.get(address);
-		}
 		synchronized (usersBottleneck) {
 			if (users.containsKey(address)) {
 				return users.get(address);
@@ -59,10 +60,21 @@ public class Competition implements AutoCloseable {
 		}
 	}
 	
-	public List<Attempt> getAttempts(Optional<User> user, Optional<Task> problem) {
+	public Optional<User> getUserByName(String name) {
+		if (name==null)
+			return Optional.empty();
+		synchronized (usersBottleneck) {
+			for (User user: users.values())
+				if (user.getName().equals(name))
+					return Optional.of(user);
+			return Optional.empty();
+		}
+	}
+	
+	public List<Attempt> getAttempts(Collection<User> users, Collection<Task> problems) {
 		List<Attempt> res = new ArrayList<>();
 		for (Attempt a: queue.getAllAttempts()) {
-			if (user.map((u)->u==a.getUser()).orElse(true) && problem.map((m)->m==a.getTask()).orElse(true)) {
+			if ((users.isEmpty() || users.contains(a.getUser())) && (problems.isEmpty() || problems.contains(a.getTask()))) {
 				res.add(a);
 			}
 		}

@@ -10,8 +10,13 @@ import gccc.Attempt;
 import gccc.AttemptResult;
 import gccc.Competition;
 import gccc.HTMLUtil.HTML;
+import gccc.Task;
+import gccc.User;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class AttemptTable extends HTMLHandler {
@@ -22,11 +27,10 @@ public class AttemptTable extends HTMLHandler {
 
 	@Override
 	public HTML get(Session sess) throws Throwable {
-		/*Map<String, String> params = sess.getParams();
-		if (params.containsKey("newUsername")) {
-			sess.getUser().setName(params.get("newUsername"));
-		}*/
-		List<Attempt> attempts = competition.getAttempts(Optional.empty(), Optional.empty());
+		Map<String, String> params = sess.getParams();
+		List<User> user=competition.getUserByName(params.get("user")).map((u)->Arrays.asList(u)).orElse(Collections.emptyList());
+		List<Task> task=competition.getTask(params.get("task")).map((u)->Arrays.asList(u)).orElse(Collections.emptyList());
+		List<Attempt> attempts = competition.getAttempts(user, task);
 		return page(
 			tag("p",
 				escape("Hello, " + sess.getUser().getName() + "! Welcome to the competition.")
