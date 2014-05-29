@@ -42,7 +42,7 @@ public class AttemptTable extends HTMLHandler {
 	public HTML get(Session sess) throws Throwable {
 		Map<String, Object> params = sess.getParams();
 		List<User> user=Optional.ofNullable((String)params.get("user")).map((u)->Arrays.asList(competition.getUserByAddress(Tools.readIP(u)))).orElse(Collections.emptyList());
-		List<Task> task=competition.getTask(params.get("task").toString()).map((u)->Arrays.asList(u)).orElse(Collections.emptyList());
+		List<Task> task=competition.getTask((String)params.get("task")).map((u)->Arrays.asList(u)).orElse(Collections.emptyList());
 		String header="Attempts";
 		HTML submit=tag("div");
 		if (!user.isEmpty())

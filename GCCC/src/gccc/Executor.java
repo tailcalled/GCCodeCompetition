@@ -84,9 +84,9 @@ public class Executor implements AutoCloseable {
 				File exeFile=new File(path.substring(0, n)+".exe");
 				try {
 					if (file.getName().endsWith(".cs"))
-						run(new String[] { cscPath+"csc.exe", file.getName() }, file.getParentFile(), "", 100000);
+						run(new String[] { cscPath+"csc.exe", file.getName() }, file.getParentFile(), "", 10000);
 					else
-						run(new String[] { cppCompiler, file.getName(), "-o", exeFile.getName() }, file.getParentFile(), "", 100000);
+						run(new String[] { cppCompiler, file.getName(), "-o", exeFile.getName() }, file.getParentFile(), "", 10000);
 					System.out.println("Compiling of "+file.getAbsolutePath()+" succeeded");
 				}
 				catch (InterruptedException error) {
@@ -97,6 +97,19 @@ public class Executor implements AutoCloseable {
 					throw new CompilationError("Could not compile "+file.getAbsolutePath(), error);
 				}
 				file=exeFile;
+			}
+			else if (file.getName().endsWith(".py")) {
+				try {
+					run(new String[] { "python", file.getName() }, file.getParentFile(), attempt.getTask().getTests().get(0).getInput(), 10000);
+					System.out.println("Compiling of "+file.getAbsolutePath()+" succeeded");
+				}
+				catch (InterruptedException error) {
+					throw error;
+				}
+				catch (Throwable error) {
+					System.out.println("Error when running python initially");
+					error.printStackTrace();
+				}
 			}
 			String fileName=file.getName();
 			String[] command;
