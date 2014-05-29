@@ -66,6 +66,7 @@ public class AttemptTable extends HTMLHandler {
 					tag("th", escape("User")),
 					tag("th", escape("Task")),
 					tag("th", escape("Submitted")),
+					tag("th", escape("File")),
 					tag("th", escape("Status")),
 					tag("th", escape("Duration")),
 					tag("th", escape("Details"))
@@ -100,6 +101,7 @@ public class AttemptTable extends HTMLHandler {
 			tag("td", escape(attempt.getUser().getName())),
 			tag("td", escape(attempt.getTask().getDisplayName())),
 			tag("td", escape(attempt.getCreated().toString())),
+			tag("td", escape(attempt.getFile().getName())),
 			tag("td", status),
 			tag("td", 
 				escape(
