@@ -188,8 +188,9 @@ public class Executor implements AutoCloseable {
 	
 	private String run(String[] command, File dir, String input, final long timeoutms) throws Exception {
 		String commandLine=new File(command[0]).getName();
-		for (int i=1; i<command.length; i++)
+		for (int i=1; i<command.length; i++) {
 			commandLine+=" "+command[i];
+		}
 		System.out.println("Running "+commandLine);
 		final Process process = Runtime.getRuntime().exec(command, null, dir);
 		try {
