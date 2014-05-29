@@ -3,7 +3,9 @@ package gccc.handlers;
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
+
 import com.sun.net.httpserver.*;
+
 import gccc.*;
 import static gccc.HTMLUtil.*;
 
@@ -17,12 +19,12 @@ public abstract class HTMLHandler extends AbstractHandler {
 
 	public class Session {
 		private final HttpExchange sess;
-		private final Map<String, String> params;
-		public Session(HttpExchange sess, Map<String, String> params) {
+		private final Map<String, Object> params;
+		public Session(HttpExchange sess, Map<String, Object> params) {
 			this.sess = sess;
 			this.params = params;
 		}
-		public Map<String, String> getParams() {
+		public Map<String, Object> getParams() {
 			return Collections.unmodifiableMap(params);
 		}
 		public User getUser() {
@@ -30,7 +32,7 @@ public abstract class HTMLHandler extends AbstractHandler {
 		}
 	}
 
-	public void handle(HttpExchange sess, Map<String, String> params) throws Throwable {
+	public void handle(HttpExchange sess, Map<String, Object> params) throws Throwable {
 		Session session = new Session(sess, params);
 		String method = sess.getRequestMethod();
 		int code = 200;

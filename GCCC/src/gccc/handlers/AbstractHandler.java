@@ -1,23 +1,27 @@
 package gccc.handlers;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.*;
+
 import com.sun.net.httpserver.*;
+
 import gccc.*;
 import static gccc.HTMLUtil.*;
 
 public abstract class AbstractHandler implements HttpHandler {
 
-	private Map<String, String> parseParams(HttpExchange sess) throws Throwable {
+	private Map<String, Object> parseParams(HttpExchange sess) throws Throwable {
 		Headers headers = sess.getRequestHeaders();
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, Object> params = new HashMap<>();
 		String query = sess.getRequestURI().getRawQuery();
 		if (query != null)
 			parseInto(query, params);
 		String contentType = headers.getFirst("Content-Type");
 		if (contentType != null) {
-			BufferedReader br = new BufferedReader(new InputStreamReader(sess.getRequestBody()));
+			//BufferedReader br = new BufferedReader(new InputStreamReader(sess.getRequestBody()));
+			FormReader br=new FormReader(sess.getRequestBody(), StandardCharsets.UTF_8);
 			String line;
 			if (contentType.equalsIgnoreCase("application/x-www-form-urlencoded")) {
 				while ((line = br.readLine()) != null) {
@@ -37,7 +41,7 @@ public abstract class AbstractHandler implements HttpHandler {
 					String name = null;
 					String filename = null;
 					m = regex.matcher(line);
-					while (!line.trim().equals("")) {
+					while (line!=null && !line.trim().equals("")) {
 						if (m.matches()) {
 							while (m.matches()) {
 								if (m.group(1).equals("Content-Type")) {
@@ -54,17 +58,23 @@ public abstract class AbstractHandler implements HttpHandler {
 								else {
 									System.out.println("Warning: invalid header: " + m.group(1));
 								}
-								m = regex.matcher(line = br.readLine());
+								line = br.readLine();
+								if (line==null)
+									break;
+								m = regex.matcher(line);
 							}
 						}
 						else {
 							System.out.println("Warning: invalid line: " + line);
-							m = regex.matcher(line = br.readLine());
+							line = br.readLine();
+							if (line==null)
+								break;
+							m = regex.matcher(line);
 						}
 					}
 					// state 2: reading input
 					if (name != null) {
-						String input = null;
+						/*String input = null;
 						while ((line = br.readLine()) != null) {
 							if (line.trim().startsWith(boundary)) {
 								break;
@@ -74,6 +84,9 @@ public abstract class AbstractHandler implements HttpHandler {
 							input += line;
 						}
 						params.put(name, input == null? "" : input);
+						*/
+						byte[] binary = br.readBinary(boundary);
+						params.put(name, binary);
 						if (filename != null) {
 							params.put(name + "__filename", filename);
 						}
@@ -85,7 +98,7 @@ public abstract class AbstractHandler implements HttpHandler {
 		}
 		return params;
 	}
-	private void parseInto(String query, Map<String, String> params) {
+	private void parseInto(String query, Map<String, Object> params) {
 		String[] parts = query.split("&");
 		for (String part: parts) {
 			String[] kv = part.split("=");
@@ -97,7 +110,7 @@ public abstract class AbstractHandler implements HttpHandler {
 
 	public void handle(HttpExchange sess) {
 		try {
-			Map<String, String> params = parseParams(sess);
+			Map<String, Object> params = parseParams(sess);
 			handle(sess, params);
 		}
 		catch (Throwable t1) {
@@ -116,6 +129,6 @@ public abstract class AbstractHandler implements HttpHandler {
 		}
 	}
 
-	public abstract void handle(HttpExchange sess, Map<String, String> params) throws Throwable;
+	public abstract void handle(HttpExchange sess, Map<String, Object> params) throws Throwable;
 
 }

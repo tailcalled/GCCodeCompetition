@@ -59,9 +59,9 @@ public class Tools {
 		return getLong(value, defaultValue);
 	}
 	
-	public static long getLong(String value, long defaultValue) {
+	public static long getLong(Object value, long defaultValue) {
 		try {
-			return Long.parseLong(value);
+			return Long.parseLong(value.toString());
 		}
 		catch (NumberFormatException e) {
 			System.out.println("Cannot parse '"+value+"'. Will use default value ("+defaultValue+") instead.");

@@ -22,8 +22,8 @@ public class UserTable extends HTMLHandler {
 
 	@Override
 	public HTML get(Session session) throws Throwable {
-		Map<String, String> params = session.getParams();
-		List<Task> task=competition.getTask(params.get("task")).map((u)->Arrays.asList(u)).orElse(Collections.emptyList());
+		Map<String, Object> params = session.getParams();
+		List<Task> task=competition.getTask(params.get("task").toString()).map((u)->Arrays.asList(u)).orElse(Collections.emptyList());
 		List<User> users=new ArrayList<>(competition.getUsers());
 		Collections.sort(users, new Comparator<User>() {
 			@Override

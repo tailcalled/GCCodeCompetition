@@ -50,7 +50,7 @@ public class CompetitionFileHandler {
 					if (submissions.exists()) {
 						System.out.println("Adding submissions from " + user.getName());
 						for (int attemptN = 0;; attemptN++) {
-							File attemptFolder = new File(submissions, "a" + attemptN);
+							File attemptFolder = new File(submissions, attemptFolderPrefix + attemptN);
 							if (attemptFolder.exists()) {
 								File[] attempts = attemptFolder.listFiles();
 								Arrays.sort(attempts, likelySubmission);
@@ -92,4 +92,5 @@ public class CompetitionFileHandler {
 		}
 	}
 
+	public static final String attemptFolderPrefix="a";
 }

@@ -15,17 +15,17 @@ public class Submission extends HTMLHandler {
 	}
 
 	public HTML post(Session sess) throws Throwable {
-		Map<String, String> params = sess.getParams();
+		Map<String, Object> params = sess.getParams();
 		if (params.containsKey("problem") && params.containsKey("upload")) {
-			Task problem = competition.getTask(params.get("problem")).get();
+			Task problem = competition.getTask(params.get("problem").toString()).get();
 			Collection<Attempt> attempts = competition.getAttempts(Arrays.asList(sess.getUser()), Arrays.asList(problem));
 			// WARNING: potential attack vector; filename might contain '../''es
-			File dir = new File(competition.getFolder(), problem.getName() + "/" + sess.getUser().getInternalName() + "/attempt" + attempts.size());
+			File dir = new File(competition.getFolder(), problem.getName() + "/" + sess.getUser().getInternalName() + "/"+CompetitionFileHandler.attemptFolderPrefix + attempts.size());
 			dir.mkdirs();
-			File file = new File(dir, params.get("upload__filename"));
+			File file = new File(dir, params.get("upload__filename").toString());
 			file.delete();
-			try (Writer out = new FileWriter(file)) {
-				out.write(params.get("upload"));
+			try (FileOutputStream out = new FileOutputStream(file)) {
+				out.write((byte[])params.get("upload"));
 			}
 			competition.submitAttempt(new Attempt(sess.getUser(), file, problem, attempts.size()));
 		}
@@ -34,15 +34,15 @@ public class Submission extends HTMLHandler {
 	
 	@Override
 	public HTML get(Session sess) throws Throwable {
-		Map<String, String> params = sess.getParams();
+		Map<String, Object> params = sess.getParams();
 		if (!params.containsKey("problem")) {
 			return null;
 		}
-		Task problem = competition.getTask(params.get("problem")).get();
+		Task problem = competition.getTask(params.get("problem").toString()).get();
 		Collection<Attempt> attempts = competition.getAttempts(Arrays.asList(sess.getUser()), Arrays.asList(problem));
 		int nAttempt;
 		if (params.containsKey("attempt"))
-			nAttempt = Integer.parseInt(params.get("attempt"));
+			nAttempt = Integer.parseInt(params.get("attempt").toString());
 		else
 			nAttempt = attempts.size() - 1;
 		return page(

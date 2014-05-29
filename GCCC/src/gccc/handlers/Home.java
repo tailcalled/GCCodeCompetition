@@ -18,9 +18,9 @@ public class Home extends HTMLHandler {
 	}
 
 	public HTML post(Session sess) {
-		Map<String, String> params = sess.getParams();
+		Map<String, Object> params = sess.getParams();
 		if (params.containsKey("newUsername")) {
-			sess.getUser().setName(params.get("newUsername"));
+			sess.getUser().setName(params.get("newUsername").toString());
 		}
 		return get(sess);
 	}

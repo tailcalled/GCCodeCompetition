@@ -16,8 +16,8 @@ public class AttemptSubmit extends Submission {
 	}
 
 	public HTML post(Session sess) throws Throwable {
-		Map<String, String> params = sess.getParams();
-		taskName=params.get("problem");
+		Map<String, Object> params = sess.getParams();
+		taskName=params.get("problem").toString();
 		return super.post(sess);
 	}
 

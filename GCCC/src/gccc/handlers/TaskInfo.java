@@ -14,11 +14,11 @@ public class TaskInfo extends HTMLHandler {
 	}
 
 	public HTML get(Session sess) {
-		Map<String, String> params = sess.getParams();
+		Map<String, Object> params = sess.getParams();
 		if (!params.containsKey("problem")) {
 			return null;
 		}
-		Task problem = competition.getTask(params.get("problem")).get();
+		Task problem = competition.getTask(params.get("problem").toString()).get();
 		Collection<Attempt> attempts = competition.getAttempts(Arrays.asList(sess.getUser()), Arrays.asList(problem));
 		return page(
 			tag("h1", escape(problem.getDisplayName())),

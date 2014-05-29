@@ -14,9 +14,9 @@ public class TestTable extends HTMLHandler {
 	
 	@Override
 	public HTML get(Session sess) throws Throwable {
-		Map<String, String> params = sess.getParams();
-		List<User> user=Optional.ofNullable(params.get("user")).map((u)->Arrays.asList(competition.getUserByAddress(Tools.readIP(u)))).orElse(Collections.emptyList());
-		List<Task> task=competition.getTask(params.get("task")).map((u)->Arrays.asList(u)).orElse(Collections.emptyList());
+		Map<String, Object> params = sess.getParams();
+		List<User> user=Optional.ofNullable(params.get("user").toString()).map((u)->Arrays.asList(competition.getUserByAddress(Tools.readIP(u)))).orElse(Collections.emptyList());
+		List<Task> task=competition.getTask(params.get("task").toString()).map((u)->Arrays.asList(u)).orElse(Collections.emptyList());
 		long index=Tools.getLong(params.get("index"), 1);
 		Attempt attempt=null;
 		for (Attempt a: competition.getAttempts(user, task)) {
@@ -37,11 +37,13 @@ public class TestTable extends HTMLHandler {
 					tag("th", escape("Input")),
 					tag("th", escape("Output"))
 				),
-				attempt.getResult().get().getTestResults().isEmpty() ?
-					render(attempt.getResult().get()) :
-					attempt.getResult().get().getTestResults().stream().map((r) -> {
-						return render(r);
-					}).collect(toList())
+				attempt.getResult().isPresent() ?
+					attempt.getResult().get().getTestResults().isEmpty() ?
+						render(attempt.getResult().get()) :
+						attempt.getResult().get().getTestResults().stream().map((r) -> {
+							return render(r);
+						}).collect(toList())
+					: tag("div")
 			)
 		);
 	}

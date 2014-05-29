@@ -3,7 +3,9 @@ package gccc.handlers;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
+
 import com.sun.net.httpserver.*;
+
 import gccc.*;
 import static gccc.HTMLUtil.*;
 
@@ -15,10 +17,10 @@ public class Doc extends AbstractHandler {
 		this.competition = competition;
 	}
 
-	public void handle(HttpExchange sess, Map<String, String> params) throws Throwable {
+	public void handle(HttpExchange sess, Map<String, Object> params) throws Throwable {
 		String method = sess.getRequestMethod();
 		if (method.equalsIgnoreCase("get") && params.containsKey("problem")) {
-			Task problem = competition.getTask(params.get("problem")).get();
+			Task problem = competition.getTask(params.get("problem").toString()).get();
 			File doc = new File(competition.getFolder(), problem.getName() + "/doc.pdf");
 			sess.getResponseHeaders().set("Content-Type", "application/pdf");
 			if (!doc.exists()) {

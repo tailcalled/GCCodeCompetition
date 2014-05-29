@@ -14,17 +14,17 @@ public class TaskTable extends HTMLHandler {
 
 	@Override
 	public HTML post(Session session) throws Throwable {
-		Map<String, String> params = session.getParams();
+		Map<String, Object> params = session.getParams();
 		if (params.containsKey("newUsername")) {
-			session.getUser().setName(params.get("newUsername"));
+			session.getUser().setName(params.get("newUsername").toString());
 		}
 		return get(session);
 	}
 
 	@Override
 	public HTML get(Session session) throws Throwable {
-		Map<String, String> params = session.getParams();
-		List<User> user=Optional.ofNullable(params.get("user")).map((u)->Arrays.asList(competition.getUserByAddress(Tools.readIP(u)))).orElse(Collections.emptyList());
+		Map<String, Object> params = session.getParams();
+		List<User> user=Optional.ofNullable(params.get("user")).map((u)->Arrays.asList(competition.getUserByAddress(Tools.readIP(u.toString())))).orElse(Collections.emptyList());
 		List<Task> tasks=new ArrayList<>(competition.getTasks());
 		Collections.sort(tasks, new Comparator<Task>() {
 			@Override

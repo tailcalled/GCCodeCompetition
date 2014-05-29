@@ -13,12 +13,12 @@ public class FileHandler extends HTMLHandler {
 	
 	@Override
 	public HTML get(Session sess) throws Throwable {
-		Map<String, String> params = sess.getParams();
-		List<User> user=Optional.ofNullable(params.get("user")).map((u)->Arrays.asList(competition.getUserByAddress(Tools.readIP(u)))).orElse(Collections.emptyList());
-		List<Task> task=competition.getTask(params.get("task")).map((u)->Arrays.asList(u)).orElse(Collections.emptyList());
-		long index=Tools.getLong(params.get("index"), 1);
-		long test=Tools.getLong(params.get("test"), 1);
-		String type=params.get("file");
+		Map<String, Object> params = sess.getParams();
+		List<User> user=Optional.ofNullable(params.get("user").toString()).map((u)->Arrays.asList(competition.getUserByAddress(Tools.readIP(u)))).orElse(Collections.emptyList());
+		List<Task> task=competition.getTask(params.get("task").toString()).map((u)->Arrays.asList(u)).orElse(Collections.emptyList());
+		long index=Tools.getLong(params.get("index").toString(), 1);
+		long test=Tools.getLong(params.get("test").toString(), 1);
+		String type=params.get("file").toString();
 		TestResult result=null;
 		loop:
 		for (Attempt a: competition.getAttempts(user, task)) {

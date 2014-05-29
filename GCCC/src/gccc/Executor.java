@@ -93,7 +93,7 @@ public class Executor implements AutoCloseable {
 				command=new String[] { javaPath+"java", name };
 			}
 			else if (fileName.endsWith(".exe"))
-				command=new String[] { fileName };
+				command=new String[] { file.getAbsolutePath() };
 			else if (fileName.endsWith(".jar"))
 				command=new String[] { javaPath+"java", "-jar", fileName };
 			else if (fileName.endsWith(".py"))
@@ -207,10 +207,14 @@ public class Executor implements AutoCloseable {
 					}
 				}
 			});
+			//String output="";
+			//int exitCode=0;
 			if (!input.isEmpty()) {
 				try (Writer w=new OutputStreamWriter(process.getOutputStream());
 					 Writer bw=new BufferedWriter(w)) {
 					bw.write(input);
+					//output=Tools.readInputStream(process.getInputStream())+Tools.readInputStream(process.getErrorStream());
+					//exitCode = process.waitFor();
 				}
 			}
 			String output=Tools.readInputStream(process.getInputStream())+Tools.readInputStream(process.getErrorStream());
