@@ -69,18 +69,35 @@ public class Executor implements AutoCloseable {
 				int n=path.lastIndexOf('.');
 				file=new File(path.substring(0, n)+".class");
 			}
+			else if (file.getName().endsWith(".cpp") || file.getName().endsWith(".c") || file.getName().endsWith(".cs")) {
+				try {
+					run(new String[] { "cl", file.getName() }, file.getParentFile(), "", 100000);
+					System.out.println("Compiling of "+file.getAbsolutePath()+" succeeded");
+				}
+				catch (InterruptedException error) {
+					throw error;
+				}
+				catch (Throwable error) {
+					result.setErrorMessage("Cannot compile");
+					throw new CompilationError("Could not compile "+file.getAbsolutePath(), error);
+				}
+				String path=file.getAbsolutePath();
+				int n=path.lastIndexOf('.');
+				file=new File(path.substring(0, n)+".exe");
+			}
 			String fileName=file.getName();
 			String[] command;
-			if (fileName.endsWith(".exe"))
-				command=new String[] { fileName };
-			else if (fileName.endsWith(".class")) {
+			if (fileName.endsWith(".class")) {
 				int n=fileName.lastIndexOf(".");
 				String name=n>=0 ? fileName.substring(0, n) : fileName;
 				command=new String[] { javaPath+"java", name };
 			}
-			else if (fileName.endsWith(".jar")) {
+			else if (fileName.endsWith(".exe"))
+				command=new String[] { fileName };
+			else if (fileName.endsWith(".jar"))
 				command=new String[] { javaPath+"java", "-jar", fileName };
-			}
+			else if (fileName.endsWith(".py"))
+				command=new String[] { "python", fileName };
 			else
 				throw new Exception("Unknown file type: "+fileName);
 			int tn=1;

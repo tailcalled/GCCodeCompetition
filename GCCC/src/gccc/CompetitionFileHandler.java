@@ -21,32 +21,6 @@ public class CompetitionFileHandler {
 		else return 0;
 	};
 
-	private static InetAddress readIP(String addr) {
-		String[] parts = addr.split("\\.");
-		byte[] bparts;
-		if (parts.length == 4) {
-			bparts = new byte[4];
-			for (int i = 0; i < 4; i++) {
-				bparts[i] = (byte) Integer.parseInt(parts[i]);
-			}
-		}
-		else if (parts.length == 8) {
-			bparts = new byte[16];
-			for (int i = 0; i < 8; i++) {
-				int p = Integer.parseInt(parts[i]);
-				bparts[2*i    ] = (byte) ((p & 0xFF00) >>> 8);
-				bparts[2*i + 1] = (byte) ((p & 0x00FF) >>> 0);
-
-			}
-		}
-		else throw new RuntimeException(addr);
-		try {
-			return InetAddress.getByAddress(bparts);
-		}
-		catch (UnknownHostException exc) {
-			throw new RuntimeException(addr, exc);
-		}
-	}
 	public static Competition loadCompetition(File folder) throws InterruptedException {
 		Competition competition = new Competition(folder);
 		try {
@@ -56,7 +30,7 @@ public class CompetitionFileHandler {
 					TabbedText infoTabs = TabbedText.deserialize(fr);
 					infoTabs.handle($each("competition", (part) -> {
 						part.handle($each("users", (userTag) -> {
-							InetAddress ip = readIP(userTag.tag);
+							InetAddress ip = Tools.readIP(userTag.tag);
 							User user = competition.getUserByAddress(ip);
 							userTag.handle($each((userPart) ->
 								userPart.handle($1("name", (nm) ->
@@ -80,7 +54,7 @@ public class CompetitionFileHandler {
 							if (attemptFolder.exists()) {
 								File[] attempts = attemptFolder.listFiles();
 								Arrays.sort(attempts, likelySubmission);
-								competition.submitAttempt(new Attempt(user, attempts[0], task, attemptN));
+								competition.submitAttempt(new Attempt(new Date(attempts[0].lastModified()), user, attempts[0], task, attemptN));
 							}
 							else break;
 						}

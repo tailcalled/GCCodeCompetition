@@ -1,23 +1,10 @@
 package gccc.handlers;
 
-import static gccc.HTMLUtil.$;
-import static gccc.HTMLUtil.attrs;
-import static gccc.HTMLUtil.escape;
-import static gccc.HTMLUtil.page;
-import static gccc.HTMLUtil.tag;
+import static gccc.HTMLUtil.*;
 import static java.util.stream.Collectors.toList;
-import gccc.Attempt;
-import gccc.Competition;
-import gccc.HTMLUtil.HTML;
-import gccc.Task;
-import gccc.User;
+import gccc.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TaskTable extends HTMLHandler {
 
@@ -26,9 +13,18 @@ public class TaskTable extends HTMLHandler {
 	}
 
 	@Override
+	public HTML post(Session session) throws Throwable {
+		Map<String, String> params = session.getParams();
+		if (params.containsKey("newUsername")) {
+			session.getUser().setName(params.get("newUsername"));
+		}
+		return get(session);
+	}
+
+	@Override
 	public HTML get(Session session) throws Throwable {
 		Map<String, String> params = session.getParams();
-		List<User> user=competition.getUserByName(params.get("user")).map((u)->Arrays.asList(u)).orElse(Collections.emptyList());
+		List<User> user=Optional.ofNullable(params.get("user")).map((u)->Arrays.asList(competition.getUserByAddress(Tools.readIP(u)))).orElse(Collections.emptyList());
 		List<Task> tasks=new ArrayList<>(competition.getTasks());
 		Collections.sort(tasks, new Comparator<Task>() {
 			@Override
@@ -55,8 +51,8 @@ public class TaskTable extends HTMLHandler {
 	}
 	
 	private HTML render(Task task, List<User> users) {
-		List<Attempt> attempts = competition.getAttempts(users, Arrays.asList(task));
-		String userLink=users.isEmpty() ? "" : "&user="+users.get(0).getName();
+		Collection<Attempt> attempts = competition.getAttempts(users, Arrays.asList(task));
+		String userLink=users.isEmpty() ? "" : "&user="+users.get(0).getInternalName();
 		return tag("tr", 
 				tag("td", escape(task.getDisplayName())),
 				tag("td", 

@@ -1,25 +1,10 @@
 package gccc.handlers;
 
-import static gccc.HTMLUtil.$;
-import static gccc.HTMLUtil.attrs;
-import static gccc.HTMLUtil.escape;
-import static gccc.HTMLUtil.page;
-import static gccc.HTMLUtil.tag;
+import static gccc.HTMLUtil.*;
 import static java.util.stream.Collectors.toList;
-import gccc.Attempt;
-import gccc.AttemptResult;
-import gccc.Competition;
-import gccc.HTMLUtil.HTML;
-import gccc.Task;
-import gccc.TestResult;
-import gccc.User;
+import gccc.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class AttemptTable extends HTMLHandler {
 
@@ -56,7 +41,7 @@ public class AttemptTable extends HTMLHandler {
 	@Override
 	public HTML get(Session sess) throws Throwable {
 		Map<String, String> params = sess.getParams();
-		List<User> user=competition.getUserByName(params.get("user")).map((u)->Arrays.asList(u)).orElse(Collections.emptyList());
+		List<User> user=Optional.ofNullable(params.get("user")).map((u)->Arrays.asList(competition.getUserByAddress(Tools.readIP(u)))).orElse(Collections.emptyList());
 		List<Task> task=competition.getTask(params.get("task")).map((u)->Arrays.asList(u)).orElse(Collections.emptyList());
 		String header="Attempts";
 		HTML submit=tag("div");
@@ -70,7 +55,7 @@ public class AttemptTable extends HTMLHandler {
 				tag("input", attrs($("type", "submit")))
 			);
 		}			
-		List<Attempt> attempts = competition.getAttempts(user, task);
+		Collection<Attempt> attempts = competition.getAttempts(user, task);
 		return page(
 			getPageTop(sess),
 			submit,
@@ -124,7 +109,7 @@ public class AttemptTable extends HTMLHandler {
 				)
 			),
 			tag("td", 
-				tag("a", attrs($("href", "tests?task="+attempt.getTask().getName()+"&user="+attempt.getUser().getName()+"&index="+attempt.getAttemptNum())),
+				tag("a", attrs($("href", "tests?task="+attempt.getTask().getName()+"&user="+attempt.getUser().getInternalName()+"&index="+attempt.getAttemptNum())),
 					escape("Details")
 				)
 			)

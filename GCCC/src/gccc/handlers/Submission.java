@@ -18,7 +18,7 @@ public class Submission extends HTMLHandler {
 		Map<String, String> params = sess.getParams();
 		if (params.containsKey("problem") && params.containsKey("upload")) {
 			Task problem = competition.getTask(params.get("problem")).get();
-			List<Attempt> attempts = competition.getAttempts(Arrays.asList(sess.getUser()), Arrays.asList(problem));
+			Collection<Attempt> attempts = competition.getAttempts(Arrays.asList(sess.getUser()), Arrays.asList(problem));
 			// WARNING: potential attack vector; filename might contain '../''es
 			File dir = new File(competition.getFolder(), problem.getName() + "/" + sess.getUser().getInternalName() + "/attempt" + attempts.size());
 			dir.mkdirs();
@@ -39,7 +39,7 @@ public class Submission extends HTMLHandler {
 			return null;
 		}
 		Task problem = competition.getTask(params.get("problem")).get();
-		List<Attempt> attempts = competition.getAttempts(Arrays.asList(sess.getUser()), Arrays.asList(problem));
+		Collection<Attempt> attempts = competition.getAttempts(Arrays.asList(sess.getUser()), Arrays.asList(problem));
 		int nAttempt;
 		if (params.containsKey("attempt"))
 			nAttempt = Integer.parseInt(params.get("attempt"));
@@ -49,7 +49,7 @@ public class Submission extends HTMLHandler {
 			tag("h1", escape("Attempts at " + problem.getDisplayName())),
 			code(() -> {
 				if (nAttempt >= 0) {
-					Attempt attempt = attempts.get(nAttempt);
+					Attempt attempt = competition.getAttempt(sess.getUser(), problem, nAttempt);
 					Optional<AttemptResult> result = attempt.getResult();
 					HTML resultInfo;
 					switch (attempt.getState()) {

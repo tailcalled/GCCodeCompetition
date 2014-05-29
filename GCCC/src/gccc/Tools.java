@@ -1,12 +1,7 @@
 package gccc;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.*;
 import java.util.Properties;
 
 public class Tools {
@@ -30,7 +25,33 @@ public class Tools {
 			return output.toString();
 		}
 	}
+	public static InetAddress readIP(String addr) {
+		String[] parts = addr.split("\\.");
+		byte[] bparts;
+		if (parts.length == 4) {
+			bparts = new byte[4];
+			for (int i = 0; i < 4; i++) {
+				bparts[i] = (byte) Integer.parseInt(parts[i]);
+			}
+		}
+		else if (parts.length == 8) {
+			bparts = new byte[16];
+			for (int i = 0; i < 8; i++) {
+				int p = Integer.parseInt(parts[i]);
+				bparts[2*i    ] = (byte) ((p & 0xFF00) >>> 8);
+				bparts[2*i + 1] = (byte) ((p & 0x00FF) >>> 0);
 
+			}
+		}
+		else throw new RuntimeException(addr);
+		try {
+			return InetAddress.getByAddress(bparts);
+		}
+		catch (UnknownHostException exc) {
+			throw new RuntimeException(addr, exc);
+		}
+	}
+	
 	public static long getLong(Properties properties, String key, long defaultValue) {
 		String value=properties.getProperty(key, "");
 		if (value.isEmpty())
