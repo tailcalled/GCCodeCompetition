@@ -27,7 +27,7 @@ import com.sun.net.httpserver.HttpServer;
  */
 public class GCCC implements AutoCloseable {
 
-	private static final File SUBMISSIONS = new File("submissions/");
+	private static final File SUBMISSIONS = new File("tasks/");
 
 	private final Competition competition;
 	private final HttpServer server;
