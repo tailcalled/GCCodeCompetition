@@ -14,8 +14,17 @@ public class Executor implements AutoCloseable {
 		this.queue = queue;
 		this.threadPool = threadPool;
 		javaPath="C:/Program Files/Java/jdk1.8.0_05/bin/";
-		if (!new File(javaPath+"javac").exists())
+		if (!new File(javaPath+"javac.exe").exists())
 			javaPath="";
+		cppCompiler="C:/Program Files/CodeBlocks/MinGW/bin/g++.exe";
+		if (!new File(cppCompiler).exists()) {
+			cppCompiler="C:/Program Files/Microsoft Visual Studio 10.0/VC/bin/cl.exe";
+			if (!new File(cppCompiler).exists())
+				cppCompiler="";
+		}
+		cscPath="C:/Windows/Microsoft.NET/Framework/v4.0.30319/";
+		if (!new File(cscPath+"csc.exe").exists())
+			cscPath="";
 		task = threadPool.execute(pollTask);
 	}
 
@@ -70,8 +79,14 @@ public class Executor implements AutoCloseable {
 				file=new File(path.substring(0, n)+".class");
 			}
 			else if (file.getName().endsWith(".cpp") || file.getName().endsWith(".c") || file.getName().endsWith(".cs")) {
+				String path=file.getAbsolutePath();
+				int n=path.lastIndexOf('.');
+				File exeFile=new File(path.substring(0, n)+".exe");
 				try {
-					run(new String[] { "cl", file.getName() }, file.getParentFile(), "", 100000);
+					if (file.getName().endsWith(".cs"))
+						run(new String[] { cscPath+"csc.exe", file.getName() }, file.getParentFile(), "", 100000);
+					else
+						run(new String[] { cppCompiler, file.getName(), "-o", exeFile.getName() }, file.getParentFile(), "", 100000);
 					System.out.println("Compiling of "+file.getAbsolutePath()+" succeeded");
 				}
 				catch (InterruptedException error) {
@@ -81,9 +96,7 @@ public class Executor implements AutoCloseable {
 					result.setErrorMessage("Cannot compile");
 					throw new CompilationError("Could not compile "+file.getAbsolutePath(), error);
 				}
-				String path=file.getAbsolutePath();
-				int n=path.lastIndexOf('.');
-				file=new File(path.substring(0, n)+".exe");
+				file=exeFile;
 			}
 			String fileName=file.getName();
 			String[] command;
@@ -232,6 +245,8 @@ public class Executor implements AutoCloseable {
 	
 	private final AttemptQueue queue;
 	public String javaPath="";
+	public String cppCompiler="";
+	public String cscPath="";
 	private ThreadPool threadPool;
 	private final ThreadPool.Task task;
 }
