@@ -1,2 +1,2 @@
 displayname=Hugo
-timeoutms=1000
+maxtimems=10000

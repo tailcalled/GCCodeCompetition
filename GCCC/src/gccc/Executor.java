@@ -223,11 +223,18 @@ public class Executor implements AutoCloseable {
 			//String output="";
 			//int exitCode=0;
 			if (!input.isEmpty()) {
-				try (Writer w=new OutputStreamWriter(process.getOutputStream());
-					 Writer bw=new BufferedWriter(w)) {
-					bw.write(input);
-					//output=Tools.readInputStream(process.getInputStream())+Tools.readInputStream(process.getErrorStream());
-					//exitCode = process.waitFor();
+				try {
+					try (Writer w=new OutputStreamWriter(process.getOutputStream());
+						 Writer bw=new BufferedWriter(w)) {
+						bw.write(input);
+						//output=Tools.readInputStream(process.getInputStream())+Tools.readInputStream(process.getErrorStream());
+						//exitCode = process.waitFor();
+					}
+				}
+				catch (Throwable error) {
+					Tools.checkError(error);
+					System.out.println("Cannot send input to application");
+					error.printStackTrace();
 				}
 			}
 			String output=Tools.readInputStream(process.getInputStream())+Tools.readInputStream(process.getErrorStream());
