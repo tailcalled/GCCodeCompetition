@@ -44,7 +44,12 @@ public class TestTable extends HTMLHandler {
 							return render(r);
 						}).collect(toList())
 					: tag("div")
-			)
+			),
+			task.isEmpty() ?
+					tag("div")
+					: tag("a", attrs($("href", "attempts?task="+task.get(0).getName())),
+						escape("Submit")
+					)
 		);
 	}
 	

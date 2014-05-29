@@ -41,7 +41,7 @@ public class TaskTable extends HTMLHandler {
 					tag("th", escape("Name")),
 					tag("th", escape("Description")),
 					tag("th", escape("Attempts")),
-					tag("th", escape("Upload"))
+					tag("th", escape("Submit"))
 				),
 				tasks.stream().map((u) -> {
 					return render(u, user);
@@ -64,7 +64,7 @@ public class TaskTable extends HTMLHandler {
 				tag("td", escape(Integer.toString(attempts.size()))),
 				tag("td", 
 					tag("a", attrs($("href", "attempts?task="+task.getName()+userLink)),
-						escape("Upload")
+						escape("Submit")
 					)
 				)
 			);
