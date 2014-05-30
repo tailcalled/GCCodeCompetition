@@ -11,14 +11,30 @@ public class CompetitionFileHandler {
 
 	private CompetitionFileHandler() {}
 
+	private static int getScore(File a) {
+		if (a.isDirectory()) 
+			return 0;
+		if (a.getName().endsWith(".exe")) 
+			return 2;
+		if (a.getName().endsWith(".jar")) 
+			return 2;
+		if (a.getName().endsWith(".class")) 
+			return 3;
+		if (a.getName().endsWith(".java")) 
+			return 4;
+		if (a.getName().endsWith(".cpp")) 
+			return 4;
+		if (a.getName().endsWith(".c")) 
+			return 4;
+		if (a.getName().endsWith(".cs")) 
+			return 4;
+		if (a.getName().endsWith(".py")) 
+			return 4;
+		return 1;
+	}
+	
 	private static Comparator<File> likelySubmission = (a, b) -> {
-		if (a.isDirectory()) return 1;
-		else if (b.isDirectory()) return -1;
-		else if (a.getName().endsWith(".java")) return -1;
-		else if (b.getName().endsWith(".java")) return 1;
-		else if (a.getName().endsWith(".exe")) return -1;
-		else if (b.getName().endsWith(".exe")) return 1;
-		else return 0;
+		return Integer.compare(getScore(b), getScore(a));
 	};
 
 	public static Competition loadCompetition(File folder) throws InterruptedException {
