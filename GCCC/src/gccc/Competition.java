@@ -96,4 +96,8 @@ public class Competition implements AutoCloseable {
 		executor.close();
 	}
 
+	public AttemptQueue getQueue() {
+		return queue;
+	}
+
 }

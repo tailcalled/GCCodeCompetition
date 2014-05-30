@@ -15,6 +15,10 @@ public class AttemptQueue {
 			allAttempts.add(attempt);
 			waiting.notifyAll();
 		}
+		synchronized(listeners) {
+			for (Runnable listener: listeners)
+				listener.run();
+		}
 	}
 	
 	public List<Attempt> getAllAttempts() {
@@ -41,6 +45,13 @@ public class AttemptQueue {
 		}
 	}
 	
+	public void addListener(Runnable listener) {
+		synchronized(listeners) {
+			listeners.add(listener);
+		}
+	}
+	
 	private Queue<Attempt> waiting=new ArrayDeque<>();
 	private List<Attempt> allAttempts=new ArrayList<>();
+	private List<Runnable> listeners=new ArrayList<>();
 }
