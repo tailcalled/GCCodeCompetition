@@ -11,8 +11,8 @@ public class GenerateInput {
 	}
 	
 	private static void castle() throws FileNotFoundException {
-		int xs=6;
-		int ys=6;
+		int xs=50;
+		int ys=50;
 		int removes=xs*ys;
 		int[][] castle=new int[xs][ys];
 		for (int i=0; i<xs; i++)
