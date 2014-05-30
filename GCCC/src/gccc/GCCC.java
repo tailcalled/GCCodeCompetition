@@ -101,6 +101,7 @@ public class GCCC implements AutoCloseable {
 				System.exit(0);
 			}
 		});
+		frame.getContentPane().add(new MainPanel(competition));
 		frame.setVisible(true);
 		frame.setSize(300, 200);
 	}

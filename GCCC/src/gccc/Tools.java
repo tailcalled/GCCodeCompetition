@@ -37,7 +37,7 @@ public class Tools {
 		else if (parts.length == 8) {
 			bparts = new byte[16];
 			for (int i = 0; i < 8; i++) {
-				int p = Integer.parseInt(parts[i]);
+				int p = Integer.parseInt(parts[i],16);
 				bparts[2*i    ] = (byte) ((p & 0xFF00) >>> 8);
 				bparts[2*i + 1] = (byte) ((p & 0x00FF) >>> 0);
 
