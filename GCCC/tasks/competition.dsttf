@@ -8,6 +8,7 @@ competition
 				admin
 		10.100.1.245
 			name
+<<<<<<< HEAD
 				/10.100.1.245
 		10.100.1.206
 			name
@@ -15,3 +16,9 @@ competition
 		10.100.1.248
 			name
 				Cornelius
+=======
+				awesome
+		10.100.1.207
+			name
+				/10.100.1.207
+>>>>>>> branch 'master' of https://github.com/tailcalled/GCCodeCompetition.git

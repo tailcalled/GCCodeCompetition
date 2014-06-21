@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 import java.util.Random;
 
 public class GenerateInput {
-
+ 
 	public static void main(String[] args) throws Exception {
 		castle();
 	}
@@ -64,7 +64,7 @@ public class GenerateInput {
 		}
 	}
 	
-	private static void hugo() throws FileNotFoundException {
+	private static void hugo() throws Exception {
 		int stier=999;
 		int apples=3000;
 		int length=50000;
