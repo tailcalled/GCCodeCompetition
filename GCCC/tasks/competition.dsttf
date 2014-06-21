@@ -6,6 +6,12 @@ competition
 		127.0.0.1
 			name
 				admin
+		10.100.1.245
+			name
+				/10.100.1.245
+		10.100.1.206
+			name
+				/10.100.1.206
 		10.100.1.248
 			name
 				Cornelius
