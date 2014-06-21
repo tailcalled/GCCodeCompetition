@@ -16,9 +16,9 @@ public class Executor implements AutoCloseable {
 		javaPath="C:/Program Files/Java/jdk1.8.0_05/bin/";
 		if (!new File(javaPath+"javac.exe").exists())
 			javaPath="";
-		scalaCompiler="C:/Program Files/scala/bin/scalac.exe";
+		scalaCompiler="C:/Program Files/scala/bin/scalac.bat";
 		if (!new File(scalaCompiler).exists())
-			scalaCompiler="scalac.exe";
+			scalaCompiler="scalac.bat";
 		cppCompiler="C:/Program Files/CodeBlocks/MinGW/bin/g++.exe";
 		if (!new File(cppCompiler).exists()) {
 			cppCompiler="C:/Program Files/Microsoft Visual Studio 10.0/VC/bin/cl.exe";
@@ -66,6 +66,7 @@ public class Executor implements AutoCloseable {
 		try {
 			File file=attempt.getFile();
 			String fileNameLow=file.getName().toLowerCase();
+			boolean isScala=false;
 			if (fileNameLow.endsWith(".java")) {
 				try {
 					run(new String[] { javaPath+"javac", file.getName() }, file.getParentFile(), "", 100000);
@@ -116,6 +117,7 @@ public class Executor implements AutoCloseable {
 				}
 			}
 			else if (fileNameLow.endsWith(".scala")) {
+				isScala=true;
 				try {
 					run(new String[] { scalaCompiler, file.getName() }, file.getParentFile(), "", 100000);
 					System.out.println("Compiling of "+file.getAbsolutePath()+" succeeded");
@@ -136,7 +138,10 @@ public class Executor implements AutoCloseable {
 			if (fileName.endsWith(".class")) {
 				int n=fileName.lastIndexOf(".");
 				String name=n>=0 ? fileName.substring(0, n) : fileName;
-				command=new String[] { javaPath+"java", name };
+				if (isScala)
+					command=new String[] { javaPath+"java", "-cp", ".;C:/Program Files/scala/lib/scala-library.jar", name };
+				else
+					command=new String[] { javaPath+"java", name };
 			}
 			else if (fileName.endsWith(".exe"))
 				command=new String[] { file.getAbsolutePath() };
