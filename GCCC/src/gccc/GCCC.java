@@ -81,7 +81,7 @@ public class GCCC implements AutoCloseable {
 	}
 
 	public static void main(String[] args) throws Throwable {
-		HttpServer server = HttpServer.create(new InetSocketAddress(8080), 16);
+		HttpServer server = HttpServer.create(new InetSocketAddress(80), 16);
 		Competition competition = CompetitionFileHandler.loadCompetition(SUBMISSIONS);
 		final GCCC gccc = new GCCC(server, competition);
 		server.setExecutor(null);

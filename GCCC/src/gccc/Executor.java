@@ -16,6 +16,9 @@ public class Executor implements AutoCloseable {
 		javaPath="C:/Program Files/Java/jdk1.8.0_05/bin/";
 		if (!new File(javaPath+"javac.exe").exists())
 			javaPath="";
+		scalaCompiler="C:/Program Files/scala/bin/scalac.exe";
+		if (!new File(scalaCompiler).exists())
+			scalaCompiler="scalac.exe";
 		cppCompiler="C:/Program Files/CodeBlocks/MinGW/bin/g++.exe";
 		if (!new File(cppCompiler).exists()) {
 			cppCompiler="C:/Program Files/Microsoft Visual Studio 10.0/VC/bin/cl.exe";
@@ -62,7 +65,8 @@ public class Executor implements AutoCloseable {
 		AttemptResult result = new AttemptResult(attempt);
 		try {
 			File file=attempt.getFile();
-			if (file.getName().endsWith(".java")) {
+			String fileNameLow=file.getName().toLowerCase();
+			if (fileNameLow.endsWith(".java")) {
 				try {
 					run(new String[] { javaPath+"javac", file.getName() }, file.getParentFile(), "", 100000);
 					System.out.println("Compiling of "+file.getAbsolutePath()+" succeeded");
@@ -78,7 +82,7 @@ public class Executor implements AutoCloseable {
 				int n=path.lastIndexOf('.');
 				file=new File(path.substring(0, n)+".class");
 			}
-			else if (file.getName().endsWith(".cpp") || file.getName().endsWith(".c") || file.getName().endsWith(".cs")) {
+			else if (fileNameLow.endsWith(".cpp") || fileNameLow.endsWith(".c") || fileNameLow.endsWith(".cs")) {
 				String path=file.getAbsolutePath();
 				int n=path.lastIndexOf('.');
 				File exeFile=new File(path.substring(0, n)+".exe");
@@ -98,7 +102,7 @@ public class Executor implements AutoCloseable {
 				}
 				file=exeFile;
 			}
-			else if (file.getName().endsWith(".py")) {
+			else if (fileNameLow.endsWith(".py")) {
 				try {
 					run(new String[] { "python", file.getName() }, file.getParentFile(), attempt.getTask().getTests().get(0).getInput(), 10000);
 					System.out.println("Compiling of "+file.getAbsolutePath()+" succeeded");
@@ -110,6 +114,22 @@ public class Executor implements AutoCloseable {
 					System.out.println("Error when running python initially");
 					error.printStackTrace();
 				}
+			}
+			else if (fileNameLow.endsWith(".scala")) {
+				try {
+					run(new String[] { scalaCompiler, file.getName() }, file.getParentFile(), "", 100000);
+					System.out.println("Compiling of "+file.getAbsolutePath()+" succeeded");
+				}
+				catch (InterruptedException error) {
+					throw error;
+				}
+				catch (Throwable error) {
+					result.setErrorMessage("Cannot compile");
+					throw new CompilationError("Could not compile "+file.getAbsolutePath(), error);
+				}
+				String path=file.getAbsolutePath();
+				int n=path.lastIndexOf('.');
+				file=new File(path.substring(0, n)+".class");
 			}
 			String fileName=file.getName();
 			String[] command;
@@ -265,6 +285,7 @@ public class Executor implements AutoCloseable {
 	
 	private final AttemptQueue queue;
 	public String javaPath="";
+	public String scalaCompiler="";
 	public String cppCompiler="";
 	public String cscPath="";
 	private ThreadPool threadPool;
